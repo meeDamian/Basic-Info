@@ -21,6 +21,9 @@ public class BasicData {
     private static SharedPreferences getSp(Context c) {
         return PreferenceManager.getDefaultSharedPreferences(c);
     }
+    private static String getUpdatedKey(String key) {
+        return key + "_updated";
+    }
 
     public static String getString(Context c, String key) {
         return getSp(c).getString(key, null);
@@ -33,33 +36,27 @@ public class BasicData {
         return i != -666 ? i : null;
     }
 
-    public static void update(Context c, String key, String val) {
-        getSp(c)
-            .edit()
-            .putString(key, val)
-            .putLong(key + "_updated", System.currentTimeMillis())
-            .apply();
+    private static SharedPreferences.Editor getSpEd(Context c) {
+        return getSp(c).edit();
     }
-    public static void update(Context c, String key, Set<String> val) {
-        getSp(c)
-            .edit()
-            .putStringSet(key, val)
-            .putLong(key + "_updated", System.currentTimeMillis())
-            .apply();
-    }
-    public static void update(Context c, String key, Integer val) {
-        getSp(c)
-            .edit()
-            .putInt(key, val)
-            .putLong(key + "_updated", System.currentTimeMillis())
-            .apply();
+    private static void saveSpEd(String key, SharedPreferences.Editor ed) {
+        ed.putLong(getUpdatedKey(key), System.currentTimeMillis()).apply();
     }
 
+    public static void update(Context c, String key, String val) {
+        saveSpEd(key, getSpEd(c).putString(key, val));
+    }
+    public static void update(Context c, String key, Set<String> val) {
+        saveSpEd(key, getSpEd(c).putStringSet(key, val));
+    }
+    public static void update(Context c, String key, Integer val) {
+        saveSpEd(key, getSpEd(c).putInt(key, val));
+    }
 
     protected static String getPrivateId(Context c) {
         return Settings.Secure.getString(c.getContentResolver(), Settings.Secure.ANDROID_ID);
     }
-    public String getPublicId(Context c) {
+    public static String getPublicId(Context c) {
         String id = getPrivateId(c);
         // TODO: shorten the string
 
