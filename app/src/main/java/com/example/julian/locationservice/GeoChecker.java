@@ -23,6 +23,7 @@ public class GeoChecker {
 
             //  ....
 
+
                 if (la != null)
                     la.onLocationAvailable("Country", "City");
     }
