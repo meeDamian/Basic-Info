@@ -3,6 +3,7 @@ package com.meedamian.info;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
+import android.widget.TextView;
 
 import com.example.julian.locationservice.GeoChecker;
 
@@ -11,17 +12,6 @@ import permissions.dispatcher.RuntimePermissions;
 
 @RuntimePermissions
 public class MainActivity extends AppCompatActivity {
-
-    /*
-    * phone
-    * phone updated
-    *
-    * location
-    * location updated
-    *
-    * url
-    * hash
-    */
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -50,6 +40,12 @@ public class MainActivity extends AppCompatActivity {
 
     @NeedsPermission(GeoChecker.PERMISSION)
     protected void initGeo() {
-        GeoChecker.getLocation(this, null);
+        final TextView tv = (TextView) findViewById(R.id.location);
+        GeoChecker.getLocation(this, new GeoChecker.LocationAvailabler() {
+            @Override
+            public void onLocationAvailable(String country, String city) {
+                tv.setText(country + ", " + city);
+            }
+        });
     }
 }

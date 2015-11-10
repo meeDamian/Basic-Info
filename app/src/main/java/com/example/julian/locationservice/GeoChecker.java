@@ -54,8 +54,8 @@ public class GeoChecker {
             city = address.getLocality();
         }
 
-                if (la != null)
-                    la.onLocationAvailable(country, city);
+        if (la != null)
+            la.onLocationAvailable(country, city);
     }
 
 
