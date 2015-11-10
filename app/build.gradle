@@ -28,5 +28,4 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.1.0'
     compile 'com.android.support:design:23.1.0'
     compile 'com.googlecode.libphonenumber:libphonenumber:7.1.1'
-
 }

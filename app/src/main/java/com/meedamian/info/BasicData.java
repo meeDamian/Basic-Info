@@ -61,6 +61,7 @@ public class BasicData {
     }
     public String getPublicId(Context c) {
         String id = getPrivateId(c);
+        // TODO: shorten the string
 
         try {
             MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
@@ -70,6 +71,5 @@ public class BasicData {
         } catch (NoSuchAlgorithmException e) {
             return null;
         }
-
     }
 }

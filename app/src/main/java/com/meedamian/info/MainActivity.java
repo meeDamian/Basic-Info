@@ -1,10 +1,10 @@
 package com.meedamian.info;
 
-import android.Manifest;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
+
+import com.example.julian.locationservice.GeoChecker;
 
 import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.RuntimePermissions;
@@ -18,6 +18,7 @@ public class MainActivity extends AppCompatActivity {
     *
     * location
     * location updated
+    *
     * url
     * hash
     */
@@ -47,8 +48,8 @@ public class MainActivity extends AppCompatActivity {
         new SimChecker(this);
     }
 
-    @NeedsPermission(Manifest.permission.ACCESS_FINE_LOCATION)
+    @NeedsPermission(GeoChecker.PERMISSION)
     protected void initGeo() {
-        Log.w("Basic Info", "@Rasmuhamed haven't implemented it yet");
+        GeoChecker.getLocation(this, null);
     }
 }
