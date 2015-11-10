@@ -26,12 +26,12 @@ public class CheckerService extends Service {
         GeoChecker.getLocation(this, new GeoChecker.LocationAvailabler() {
             @Override
             public void onLocationAvailable(String country, String city) {
-                Set<String> locationSet = new HashSet<>();
-                locationSet.add(country);
-                locationSet.add(city);
-                BasicData.update(CheckerService.this, BasicData.LOCATION, locationSet);
+            Set<String> locationSet = new HashSet<>();
+            locationSet.add(country);
+            locationSet.add(city);
+            BasicData.update(CheckerService.this, BasicData.LOCATION, locationSet);
 
-                uploadToParse(country, city);
+            uploadToParse(country, city);
             }
         });
 
