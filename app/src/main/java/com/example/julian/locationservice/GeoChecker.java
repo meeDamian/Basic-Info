@@ -6,8 +6,11 @@ import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
+import android.os.Bundle;
 import android.support.v4.app.NotificationCompat;
+import android.util.Log;
 
+import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 
@@ -17,55 +20,74 @@ import java.util.Locale;
 
 import permissions.dispatcher.PermissionUtils;
 
-public class GeoChecker {
+public class GeoChecker implements
+    GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
-    public static final String PERMISSION = Manifest.permission.ACCESS_FINE_LOCATION;
+    public static final String PERMISSION = Manifest.permission.ACCESS_COARSE_LOCATION;
 
     private static final int MISSING_PERMISSION = 1;
 
-    static GoogleApiClient mGoogleApiClient;
-    static Location mLocation;
+    private GoogleApiClient mGoogleApiClient;
+    private LocationAvailabler la;
+    private Context c;
 
-    public GeoChecker(Context c) {
+
+    public GeoChecker(Context context, LocationAvailabler locationer) {
+        la = locationer;
+        c = context;
+
+        buildGoogleApiClient(c).connect();
+
         if (!PermissionUtils.hasSelfPermissions(c, PERMISSION)) showPermissionNotification(c);
         else cancelPermissionNotification(c);
     }
 
-    public static void getLocation(Context c, LocationAvailabler la) {
-        mLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
-        Geocoder geocoder = new Geocoder(c, Locale.getDefault());
-        List<Address> addresses = null;
-        String country = null;
-        String city = null;
+    @Override
+    public void onConnected(Bundle bundle) {
+        Location mLastLocation = LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient);
 
-        try{
-            addresses = geocoder.getFromLocation(
-                    mLocation.getLatitude(),
-                    mLocation.getLongitude(),
+        if (mLastLocation != null) {
+            Address address = null;
+
+            try {
+                List<Address> addresses = new Geocoder(c, Locale.getDefault()).getFromLocation(
+                    mLastLocation.getLatitude(),
+                    mLastLocation.getLongitude(),
                     1
-            );
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+                );
+                address = addresses.get(0);
 
-        if(addresses != null || addresses.size() != 0){
-            Address address = addresses.get(0);
-            country = address.getCountryName();
-            city = address.getLocality();
-        }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
-        if (la != null)
-            la.onLocationAvailable(country, city);
+            if (address != null && la != null)
+                la.onLocationAvailable(
+                    address.getCountryName(),
+                    address.getLocality()
+                );
+        }
+    }
+    public GeoChecker(Context c) { this(c,null); }
+
+    @Override
+    public void onConnectionSuspended(int i) {
+        Log.d("Basic Info", "suspended");
+
     }
 
+    @Override
+    public void onConnectionFailed(ConnectionResult connectionResult) {
+        Log.d("Basic Info", "failed");
 
+    }
 
-    protected synchronized void buildGoogleApiClient(Context c) {
-        mGoogleApiClient = new GoogleApiClient.Builder(c)
-                .addConnectionCallbacks((GoogleApiClient.ConnectionCallbacks) c)
-                .addOnConnectionFailedListener((GoogleApiClient.OnConnectionFailedListener) c)
-                .addApi(LocationServices.API)
-                .build();
+    protected synchronized GoogleApiClient buildGoogleApiClient(Context c) {
+        return mGoogleApiClient = new GoogleApiClient.Builder(c)
+            .addConnectionCallbacks(this)
+            .addOnConnectionFailedListener(this)
+            .addApi(LocationServices.API)
+            .build();
     }
 
 
@@ -86,7 +108,6 @@ public class GeoChecker {
     private void cancelPermissionNotification(Context c) {
         getNotificationManager(c).cancel(MISSING_PERMISSION);
     }
-
 
     public interface LocationAvailabler {
         void onLocationAvailable(String country, String city);

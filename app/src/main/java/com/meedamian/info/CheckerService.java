@@ -23,7 +23,7 @@ public class CheckerService extends Service {
 
         new SimChecker(getApplicationContext());
 
-        GeoChecker.getLocation(this, new GeoChecker.LocationAvailabler() {
+        new GeoChecker(this, new GeoChecker.LocationAvailabler() {
             @Override
             public void onLocationAvailable(String country, String city) {
             Set<String> locationSet = new HashSet<>();
