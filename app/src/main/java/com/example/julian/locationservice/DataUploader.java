@@ -12,7 +12,7 @@ public class DataUploader {
     private Context c;
     private String phone;
     private String vanity;
-    private String county;
+    private String country;
     private String city;
 
     public DataUploader(Context context) {
@@ -30,7 +30,15 @@ public class DataUploader {
             if (phone != null)
                 jo.put("phone", phone);
 
-            // TODO: ifs
+            else if(vanity != null)
+                jo.put("vanity", vanity);
+
+            else if(country != null)
+                jo.put("country", country);
+
+            else if(city != null)
+                jo.put("city", city);
+            
 
         } catch (JSONException ignored) {}
         finally {
@@ -42,7 +50,7 @@ public class DataUploader {
     }
 
     public DataUploader setLocation(String country, String city) {
-        this.county = country;
+        this.country = country;
         this.city = city;
         return this;
     }
