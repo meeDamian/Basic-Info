@@ -3,8 +3,8 @@ package com.meedamian.info;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
-import android.util.Log;
 
+import com.example.julian.locationservice.DataUploader;
 import com.example.julian.locationservice.GeoChecker;
 
 import java.util.HashSet;
@@ -39,6 +39,8 @@ public class CheckerService extends Service {
     }
 
     private void uploadToParse(String country, String city) {
-        Log.d("Basic Data", "Uploading to parse (" + country + ", " + city + ")");
+        new DataUploader(this)
+            .setLocation(country, city)
+            .upload();
     }
 }

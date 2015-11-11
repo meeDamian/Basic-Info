@@ -9,7 +9,7 @@ async = require('cloud/async.js');
 
 app = express();
 
-app.use(express.badyParser());
+app.use(express.bodyParser());
 
 getHash = function(string) {
   return crypto.createHash('sha256').update('' + string).digest('hex').substring(0, 8);
@@ -20,8 +20,8 @@ app.get('/:id', function(req, res) {
   o = {};
   id = (req.params.id || '').toLowerCase();
   key = '';
-  if (id === 'meedamian' || id === 666) {
-    key = 666;
+  if (id === 'meedamian' || id === getHash('666')) {
+    key = '666';
     o = {
       vanity: 'meeDamian',
       phone: '+886 909 377 026',
@@ -30,7 +30,7 @@ app.get('/:id', function(req, res) {
         city: 'Taichung'
       }
     };
-  } else if (id === 'olek' || id === 420) {
+  } else if (id === 'olek' || id === getHash('420')) {
     key = '420';
     o = {
       vanity: 'Olek',

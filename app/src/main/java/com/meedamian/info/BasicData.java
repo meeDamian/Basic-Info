@@ -53,7 +53,7 @@ public class BasicData {
         saveSpEd(key, getSpEd(c).putInt(key, val));
     }
 
-    protected static String getPrivateId(Context c) {
+    public static String getPrivateId(Context c) {
         return Settings.Secure.getString(c.getContentResolver(), Settings.Secure.ANDROID_ID);
     }
     public static String getPublicId(Context c) {

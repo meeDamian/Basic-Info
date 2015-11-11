@@ -4,7 +4,7 @@ async   = require 'cloud/async.js'
 
 app = express()
 
-app.use express.badyParser()
+app.use express.bodyParser()
 
 getHash = (string) ->
   crypto.createHash 'sha256'
@@ -18,8 +18,8 @@ app.get '/:id', (req, res) ->
 
   key = ''
 
-  if id in ['meedamian', 666]
-    key = 666
+  if id in ['meedamian', getHash '666']
+    key = '666'
     o =
       vanity: 'meeDamian'
       phone: '+886 909 377 026'
@@ -27,9 +27,8 @@ app.get '/:id', (req, res) ->
         country: 'Taiwan'
         city: 'Taichung'
 
-  else if id in ['olek', 420]
+  else if id in ['olek', getHash '420']
     key = '420'
-
     o =
       vanity: 'Olek'
       location:
@@ -38,7 +37,6 @@ app.get '/:id', (req, res) ->
 
   else
     key = id
-
     o =
       phone: '+1 234 56789'
       location:
@@ -49,12 +47,10 @@ app.get '/:id', (req, res) ->
 
   res.jsonp o
 
-
 updaters =
   vanity: (key, newValue, cb) -> cb null, 'vanity'
   phone: (key, newValue, cb) -> cb null, 'phone'
   location: (key, newValue, cb) -> cb null, 'location'
-
 
 app.post '/update', (req, res) ->
   key = req.body.key
@@ -76,5 +72,6 @@ app.post '/update', (req, res) ->
     res.json 200,
       id: getHash key
       updated: results
+
 
 app.listen()
