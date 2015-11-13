@@ -14,7 +14,9 @@ class Patch
   @CITY:    'city'
   @COUNTRY: 'country'
 
-  @VANITY_LOWER:  Patch.VANITY + 'LowerCase'
+  @VANITY_LOWER:      Patch.VANITY  + 'LowerCase'
+  @PHONE_UPDATED:     Patch.PHONE   + 'Updated'
+  @LOCATION_UPDATED: 'locationUpdated'
 
   _vals   = {}
   _oldVals = {}
@@ -34,8 +36,15 @@ class Patch
 
     _vals[what] = val.trim()
 
-    if what is Patch.VANITY
-      _vals[Patch.VANITY_LOWER] = _vals[what].toLowerCase()
+    switch what
+      when Patch.VANITY
+        _vals[Patch.VANITY_LOWER] = _vals[what].toLowerCase()
+
+      when Patch.PHONE
+        _vals[Patch.PHONE_UPDATED] = new Date()
+
+      when Patch.CITY, Patch.COUNTRY
+        _vals[Patch.LOCATION_UPDATED] = new Date()
 
   constructor: (body) ->
     _extractHash body
@@ -46,13 +55,21 @@ class Patch
     _extract body, Patch.COUNTRY
 
   applyUpdates: (record, cb) ->
-    for key, val of _vals
-      record.set key, val
+    record.set key, val for key, val of _vals
     record.save null, cb
 
   # UPDATE
   _setOldVal = (what, newVal, oldVal, cb) ->
     if oldVal is newVal
+      switch what
+        when Patch.PHONE
+          _vals[Patch.PHONE_UPDATED] = undefined
+          delete _vals[Patch.PHONE_UPDATED]
+
+        when Patch.CITY, Patch.COUNTRY
+          _vals[Patch.LOCATION_UPDATED] = undefined
+          delete _vals[Patch.LOCATION_UPDATED]
+
       return cb null, no
 
     if what isnt Patch.VANITY

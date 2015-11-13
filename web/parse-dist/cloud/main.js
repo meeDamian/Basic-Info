@@ -26,6 +26,10 @@ Patch = (function() {
 
   Patch.VANITY_LOWER = Patch.VANITY + 'LowerCase';
 
+  Patch.PHONE_UPDATED = Patch.PHONE + 'Updated';
+
+  Patch.LOCATION_UPDATED = 'locationUpdated';
+
   _vals = {};
 
   _oldVals = {};
@@ -50,8 +54,14 @@ Patch = (function() {
       return;
     }
     _vals[what] = val.trim();
-    if (what === Patch.VANITY) {
-      return _vals[Patch.VANITY_LOWER] = _vals[what].toLowerCase();
+    switch (what) {
+      case Patch.VANITY:
+        return _vals[Patch.VANITY_LOWER] = _vals[what].toLowerCase();
+      case Patch.PHONE:
+        return _vals[Patch.PHONE_UPDATED] = new Date();
+      case Patch.CITY:
+      case Patch.COUNTRY:
+        return _vals[Patch.LOCATION_UPDATED] = new Date();
     }
   };
 
@@ -74,6 +84,16 @@ Patch = (function() {
 
   _setOldVal = function(what, newVal, oldVal, cb) {
     if (oldVal === newVal) {
+      switch (what) {
+        case Patch.PHONE:
+          _vals[Patch.PHONE_UPDATED] = void 0;
+          delete _vals[Patch.PHONE_UPDATED];
+          break;
+        case Patch.CITY:
+        case Patch.COUNTRY:
+          _vals[Patch.LOCATION_UPDATED] = void 0;
+          delete _vals[Patch.LOCATION_UPDATED];
+      }
       return cb(null, false);
     }
     if (what !== Patch.VANITY) {
