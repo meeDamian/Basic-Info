@@ -19,6 +19,10 @@ public class MainActivity extends AppCompatActivity {
 
         init();
 
+//        new DataUploader(this)
+//            .setPhone("")
+//            .upload();
+
     }
 
     @Override
