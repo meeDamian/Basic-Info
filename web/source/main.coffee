@@ -1,14 +1,102 @@
 express = require 'express'
 crypto  = require 'crypto'
 
+async   = require 'cloud/async.js'
+
 app = express()
 
-# NOTE: This code is so ugly that I want to die
+class Patch
+  @KEY:   'key'
+  @HASH:  'hash'
+
+  @VANITY:  'vanity'
+  @PHONE:   'phone'
+  @CITY:    'city'
+  @COUNTRY: 'country'
+
+  @VANITY_LOWER:  Patch.VANITY + 'LowerCase'
+
+  _vals   = {}
+  _oldVals = {}
+
+  getHash: -> _vals[Patch.HASH]
+  _extractHash = (body) ->
+    key = body[Patch.KEY]
+
+    unless key?
+      throw "key is required and missing"
+
+    _vals[Patch.HASH] = makeHash key
+
+  _extract = (body, what) ->
+    val = body[what]
+    return unless val
+
+    _vals[what] = val.trim()
+
+    if what is Patch.VANITY
+      _vals[Patch.VANITY_LOWER] = _vals[what].toLowerCase()
+
+  constructor: (body) ->
+    _extractHash body
+
+    _extract body, Patch.VANITY
+    _extract body, Patch.PHONE
+    _extract body, Patch.CITY
+    _extract body, Patch.COUNTRY
+
+  applyUpdates: (record, cb) ->
+    for key, val of _vals
+      record.set key, val
+    record.save null, cb
+
+  # UPDATE
+  _setOldVal = (what, newVal, oldVal, cb) ->
+    if oldVal is newVal
+      return cb null, no
+
+    if what isnt Patch.VANITY
+      _oldVals[what] = oldVal
+      cb null, yes
+
+    else
+      checkVanity newVal, (err, hit) ->
+        return cb err if err
+
+        unless hit
+          _oldVals[what] = oldVal
+          cb null, yes
+
+        else
+          cb 'vanity taken'
+
+  _saveAtomicUpdates = ->
+    for key, val of _oldVals
+      Updates = Parse.Object.extend 'Updates'
+      update = new Updates()
+
+      update.set Patch.HASH, _vals[Patch.HASH]
+      update.set 'oldVal', _oldVals[key]
+      update.set 'newVal', _vals[key]
+      update.save()
+
+  setPrevious: (record, cb) ->
+    fn = (key, newVal, oldVal) -> (lcb) -> _setOldVal key, newVal, oldVal, lcb
+
+    list = {}
+    for key, val of _vals when key isnt Patch.HASH
+      list[key] = fn key, val, record.get key
+
+    async.parallel list, (err, changed) ->
+      return cb err if err
+
+      _saveAtomicUpdates()
+      cb null, changed
 
 app.use express.bodyParser()
 
 # utility fn returning 8 first chars of SHA256 hash
-getHash = (string) ->
+makeHash = (string) ->
   crypto.createHash 'sha256'
     .update '' + string
     .digest 'hex'
@@ -17,19 +105,19 @@ getHash = (string) ->
 checkVanity = (vanity, cb) ->
   vanityLower = vanity.toLowerCase()
 
-  hashMatches = new Parse.Query 'Latest'
-  hashMatches.equalTo 'hash', vanityLower
+  hashQuery = new Parse.Query 'Latest'
+  hashQuery.equalTo Patch.HASH, vanityLower
 
-  vanityMatches = new Parse.Query 'Latest'
-  vanityMatches.equalTo 'vanityLowerCase', vanityLower
+  vanityQuery = new Parse.Query 'Latest'
+  vanityQuery.equalTo Patch.VANITY_LOWER, vanityLower
 
-  Parse.Query.or(hashMatches, vanityMatches).first
+  Parse.Query.or(hashQuery, vanityQuery).first
     success: (o) -> cb null, o
-    error: (error) -> cb error
+    error: (err) -> cb err
 
-getRecord = (key, cb) ->
+getRecord = (hash, cb) ->
   q = new Parse.Query 'Latest'
-  q.equalTo 'hash', getHash key
+  q.equalTo 'hash', hash
   q.find
     success: (records) ->
       switch records.length
@@ -39,16 +127,15 @@ getRecord = (key, cb) ->
 
     error: cb.error
 
+app.get '/favicon.ico', (req, res) ->
+  res.send 404, 'nope.'
+  return
+
 # public API endpoint
 # https://basic-data.parseapp.com/<hex>
 # https://basic-data.parseapp.com/<vanity>
 app.get '/:id', (req, res) ->
   id = req.params.id ? ''
-
-  # some browsers ask for it and it generates errors in logs...
-  if id is 'favicon.ico'
-    res.end 'Really?'
-    return
 
   checkVanity id, (err, o) ->
     if err
@@ -56,126 +143,45 @@ app.get '/:id', (req, res) ->
       return
 
     unless o
-      res.jsonp 200, {}
+      res.jsonp 404, {}
       return
 
     res.jsonp 200,
       vanity:   o?.get 'vanity'
       hash:     o?.get 'hash'
       phone:    o?.get 'phone'
-      location: o?.get 'location'
-
-resError = (res) -> (error) ->
-  res.json 500, error: error
+      location:
+        city:     o?.get 'city'
+        country:  o?.get 'country'
 
 app.post '/update', (req, res) ->
-  errorer = resError res
+  try
+    patch = new Patch req.body
 
-  key = req.body.key
-  unless key
-    return errorer ['"key" missing']
+  catch error
+    res.json 500, error
+    return
 
-  getRecord key,
+  getRecord patch.getHash(),
     create: ->
       Latest = Parse.Object.extend 'Latest'
       record = new Latest()
 
-      saveable =
-        hash: getHash key
-
-      newPhone = req.body['phone']
-      if newPhone
-        saveable.phone = newPhone
-
-      newLocation = req.body['location']
-      if newLocation
-        saveable.location = newLocation
-
-      newVanity = req.body['vanity']
-      if newVanity
-        checkVanity newVanity, (err, o) ->
-          unless o
-            saveable.vanity = newVanity
-            record.save saveable,
-              success: ->
-                res.json 200, action: 'created'
-
-              error: errorer
-
-          else res.json 500, error: 'vanity taken'
-
-      else
-        record.save saveable,
-          success: ->
-            res.json 200, action: 'created'
-
-          error: errorer
+      patch.applyUpdates record,
+        success: -> res.json 201, 'created'
+        error: ->   res.json 500, 'not created'
 
     update: (record) ->
-      changes = []
-
-      # phone
-      newPhone = req.body['phone']
-      if newPhone
-        oldPhone = record.get 'phone'
-        if oldPhone isnt newPhone
-          changes.push
-            name: 'phone'
-            oldValue: oldPhone
-            newValue: newPhone
-
-      # location
-      newLocation = req.body['location']
-      if newLocation
-        oldLocation = record.get 'location'
-        if oldLocation.city isnt newLocation.city or oldLocation.country isnt newLocation.country
-          changes.push
-            name: 'location'
-            oldValue: oldLocation
-            newValue: newLocation
-
-      # vanity
-      newVanity = req.body['vanity']
-      if newVanity
-        oldVanity = record.get 'vanity'
-        if oldVanity isnt newVanity
-          checkVanity newVanity, (err, o) ->
-            unless o
-              changes.push
-                name: 'vanity'
-                oldValue: oldVanity
-                newValue: newVanity
-
-              changes.push
-                name: 'vanityLowerCase'
-                oldValue: oldVanity
-                newValue: newVanity.toLowerCase()
-
-              unless changes.length
-                res.json 200, action: 'not updated'
-                return
-
-              record.set change.name, change.newValue for change in changes
-              record.save null,
-                success: ->
-                  res.json 200, action: 'updated'
-
-                error: errorer
-
-            else res.json 500, error: 'vanity taken'
-
-      else
-        unless changes.length
-          res.json 200, action: 'not updated'
+      patch.setPrevious record, (err, something) ->
+        if err
+          res.json 500, err
           return
 
-        record.set change.name, change.newValue for change in changes
-        record.save null,
-          success: ->
-            res.json 200, action: 'updated'
+        patch.applyUpdates record,
+          success: -> res.json 200, 'updated'
+          error: ->   res.json 500, 'not updated'
 
-          error: errorer
-
-    error: errorer
+    error: ->
+      res.json 500, 'unknown error'
 
 app.listen()
