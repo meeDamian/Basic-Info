@@ -76,6 +76,7 @@ class Patch
       update = new Updates()
 
       update.set Patch.HASH, _vals[Patch.HASH]
+      update.set 'key', key
       update.set 'oldVal', _oldVals[key]
       update.set 'newVal', _vals[key]
       update.save()

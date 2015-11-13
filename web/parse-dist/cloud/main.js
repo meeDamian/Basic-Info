@@ -102,6 +102,7 @@ Patch = (function() {
       Updates = Parse.Object.extend('Updates');
       update = new Updates();
       update.set(Patch.HASH, _vals[Patch.HASH]);
+      update.set('key', key);
       update.set('oldVal', _oldVals[key]);
       update.set('newVal', _vals[key]);
       _results.push(update.save());
