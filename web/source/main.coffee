@@ -165,12 +165,14 @@ app.get '/:id', (req, res) ->
       return
 
     res.jsonp 200,
-      vanity:   o?.get 'vanity'
-      hash:     o?.get 'hash'
-      phone:    o?.get 'phone'
+      vanity:       o?.get 'vanity'
+      hash:         o?.get 'hash'
+      phone:        o?.get 'phone'
+      phoneUpdated: o?.get 'phoneUpdated'
       location:
-        city:     o?.get 'city'
-        country:  o?.get 'country'
+        updated:    o?.get 'locationUpdated'
+        city:       o?.get 'city'
+        country:    o?.get 'country'
 
 app.post '/update', (req, res) ->
   try

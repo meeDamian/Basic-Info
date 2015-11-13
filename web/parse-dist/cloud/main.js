@@ -221,7 +221,9 @@ app.get('/:id', function(req, res) {
       vanity: o != null ? o.get('vanity') : void 0,
       hash: o != null ? o.get('hash') : void 0,
       phone: o != null ? o.get('phone') : void 0,
+      phoneUpdated: o != null ? o.get('phoneUpdated') : void 0,
       location: {
+        updated: o != null ? o.get('locationUpdated') : void 0,
         city: o != null ? o.get('city') : void 0,
         country: o != null ? o.get('country') : void 0
       }
