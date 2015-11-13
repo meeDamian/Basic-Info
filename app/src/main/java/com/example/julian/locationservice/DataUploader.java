@@ -43,13 +43,13 @@ public class DataUploader {
             if (phone != null)
                 jo.put("phone", phone);
 
-            else if (vanity != null)
+            if (vanity != null)
                 jo.put("vanity", vanity);
 
-            else if (country != null)
+            if (country != null)
                 jo.put("country", country);
 
-            else if (city != null)
+            if (city != null)
                 jo.put("city", city);
 
         } catch (JSONException ignored) {
@@ -80,7 +80,7 @@ public class DataUploader {
             // to https://basic-data.parseapp.com/update
         }
     }
-    
+
     public DataUploader setLocation(String country, String city) {
         this.country = country;
         this.city = city;
