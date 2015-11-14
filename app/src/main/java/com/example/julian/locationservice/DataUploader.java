@@ -1,28 +1,29 @@
 package com.example.julian.locationservice;
 
 import android.content.Context;
+import android.util.Log;
 
+import com.google.gson.JsonObject;
+import com.koushikdutta.async.future.FutureCallback;
+import com.koushikdutta.ion.Ion;
 import com.meedamian.info.BasicData;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.io.BufferedOutputStream;
-import java.io.BufferedWriter;
-import java.io.IOException;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
-import java.net.URL;
 
 public class DataUploader {
 
-    private Context c;
+    protected static final String KEY     = "key";
+    public static final    String PHONE   = "phone";
+    public static final    String VANITY  = "vanity";
+    public static final    String COUNTRY = "country";
+    public static final    String CITY    = "city";
+
+    private static final String    API_URL = "https://basic-data.parseapp.com/update";
+
     private String phone;
     private String vanity;
     private String country;
     private String city;
+
+    private Context c;
 
     public DataUploader(Context context) {
         c = context;
@@ -30,55 +31,32 @@ public class DataUploader {
 
 
     public void upload() {
-        String key = BasicData.getPrivateId(c);
 
-        HttpURLConnection urlConnection;
-        URL url;
-        String http = "https://basic-data.parseapp.com/update";
+        JsonObject jo = new JsonObject();
+        jo.addProperty(KEY, BasicData.getPrivateId(c));
 
-        JSONObject jo = new JSONObject();
-        try {
-            jo.put("key", key);
+        if (vanity != null)
+            jo.addProperty(VANITY,  vanity);
 
-            if (phone != null)
-                jo.put("phone", phone);
+        if (phone != null)
+            jo.addProperty(PHONE,   phone);
 
-            if (vanity != null)
-                jo.put("vanity", vanity);
+        if (country != null)
+            jo.addProperty(COUNTRY, country);
 
-            if (country != null)
-                jo.put("country", country);
+        if (city != null)
+            jo.addProperty(CITY,    city);
 
-            if (city != null)
-                jo.put("city", city);
-
-        } catch (JSONException ignored) {
-        } finally {
-            try {
-                url = new URL(http);
-                urlConnection = (HttpURLConnection) url.openConnection();
-                urlConnection.setDoOutput(true);
-                urlConnection.setRequestMethod("POST");
-                urlConnection.setRequestProperty("Accept", "application/json");
-
-                OutputStream out = new BufferedOutputStream(urlConnection.getOutputStream());
-                BufferedWriter writer = new BufferedWriter(new OutputStreamWriter(out, "UTF-8"));
-                writer.write(String.valueOf(jo));
-                writer.flush();
-                writer.close();
-                out.close();
-
-                urlConnection.connect();
-
-            } catch (MalformedURLException e) {
-                e.printStackTrace();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            // send `jo`
-            // as POST body
-            // to https://basic-data.parseapp.com/update
-        }
+        Ion.with(c)
+            .load(API_URL)
+            .setJsonObjectBody(jo)
+            .asString()
+            .setCallback(new FutureCallback<String>() {
+                @Override
+                public void onCompleted(Exception e, String result) {
+                    Log.d("Basic Data", result);
+                }
+            });
     }
 
     public DataUploader setLocation(String country, String city) {
