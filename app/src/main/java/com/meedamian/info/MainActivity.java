@@ -2,18 +2,23 @@ package com.meedamian.info;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.location.Address;
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.example.julian.locationservice.GeoChecker;
+
+import java.io.IOException;
 
 import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.RuntimePermissions;
@@ -39,6 +44,28 @@ public class MainActivity extends AppCompatActivity {
 
             if (phone != null)
                 phoneET.setText(phone);
+
+
+            String locationQuery = null;
+            if (country != null)
+                locationQuery = country;
+
+            if (city != null) {
+                if (locationQuery == null)
+                    locationQuery = city;
+                else
+                    locationQuery += ", " + city;
+            }
+
+            if (locationQuery != null) {
+                try {
+                    Address address = new Geocoder(MainActivity.this).getFromLocationName(locationQuery, 1).get(0);
+                    Log.d("Basic Data", String.format("Lat: %f, Lng: %f", address.getLatitude(), address.getLongitude()));
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
             }
         });
 

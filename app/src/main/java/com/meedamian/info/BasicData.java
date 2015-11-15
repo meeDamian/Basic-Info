@@ -25,7 +25,7 @@ public class BasicData {
     public static final String LOCATION      = "location";
     public static final String SUBSCRIBER_ID = "subscriber";
 
-    private static final String API_BASE_URL = "https://basic-data.parseapp.com/";
+    private static final String API_BASE_URL   = "https://basic-data.parseapp.com/";
     private static final String API_UPLOAD_URL = API_BASE_URL + "update";
 
     private static final String KEY = "key";
@@ -43,7 +43,9 @@ public class BasicData {
         if (dc != null)
             refreshData(dc);
     }
+
     private static BasicData instance = null;
+
     public static BasicData getInstance(Context context, @Nullable DataCallback dc) {
         if (instance == null)
             instance = new BasicData(context, dc);
@@ -53,6 +55,7 @@ public class BasicData {
 
         return instance;
     }
+
     public static BasicData getInstance(Context c) {
         return getInstance(c, null);
     }
@@ -201,6 +204,11 @@ public class BasicData {
     }
 
     public interface DataCallback {
-        void onDataReady(String vanity, String phone, String country, String city);
+        void onDataReady(
+            @Nullable String vanity,
+            @Nullable String phone,
+            @Nullable String country,
+            @Nullable String city
+        );
     }
 }
