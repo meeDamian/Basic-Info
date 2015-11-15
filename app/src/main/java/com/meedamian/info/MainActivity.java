@@ -1,5 +1,6 @@
 package com.meedamian.info;
 
+import android.location.Geocoder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -8,7 +9,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.EditText;
 
-import com.example.julian.locationservice.DataUploader;
 import com.example.julian.locationservice.GeoChecker;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -16,6 +16,8 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.io.IOException;
 
 import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.RuntimePermissions;
@@ -26,7 +28,8 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private EditText phoneET;
 
     private EditText vanityET;
-    private TextInputLayout vanityWrapper;
+
+    Geocoder mGeocoder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,16 +37,18 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         setContentView(R.layout.activity_main);
 
         phoneET = (EditText) findViewById(R.id.phone);
-        vanityET = (EditText) findViewById(R.id.vanity);
-        vanityWrapper = (TextInputLayout) findViewById(R.id.vanityWrapper);
+
+        TextInputLayout vanityWrapper = (TextInputLayout) findViewById(R.id.vanityWrapper);
         vanityWrapper.setHint(String.format(
-            getString(R.string.current_url),
-            BasicData.getPublicId(this)
+                getString(R.string.current_url),
+                BasicData.getPublicId(this)
         ));
 
         MapFragment mapFragment = (MapFragment) getFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        vanityET = (EditText) findViewById(R.id.vanity);
 
         vanityET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -52,14 +57,13 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
                 handler.postDelayed(new Runnable() {
                     @Override
                     public void run() {
-                    vanityET.setHint(hasFocus ? "Set your vanity" : "");
+                        vanityET.setHint(hasFocus ? "Set your vanity" : "");
                     }
                 }, 200);
             }
         });
 
         init();
-
     }
 
     @Override
@@ -68,40 +72,52 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         MainActivityPermissionsDispatcher.onRequestPermissionsResult(this, requestCode, grantResults);
     }
 
-    @Override
-    protected void onPause() {
-        DataUploader du = new DataUploader(this);
-
-        String phoneNo = phoneET.getText().toString();
-        if (phoneNo.length() > 0)
-            du.setPhone(phoneNo);
-
-        String vanityUrl = vanityET.getText().toString();
-        if (vanityUrl.length() > 0)
-            du.setVanity(vanityUrl);
-
-        du.upload();
-
-        super.onPause();
-    }
-
     private void init() {
         BasicData.fetchFresh(this, new BasicData.DataCallback() {
             @Override
             public void onDataReady(String vanity, String phone, String country, String city) {
 
-            if (vanity != null)
-                vanityET.setText(vanity);
+                if (vanity != null)
+                    vanityET.setText(vanity);
 
-            if (phone != null)
-                phoneET.setText(phone);
+                if (phone != null)
+                    phoneET.setText(phone);
 
+                String locationQuery = null;
+
+                if (country != null)
+                    locationQuery = country;
+
+                if (city != null)
+                    try {
+                        mGeocoder.getFromLocationName(country + ", " + city, 1);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
         });
 
         Receiver.setAlarm(this);
         MainActivityPermissionsDispatcher.initSimWithCheck(this);
         MainActivityPermissionsDispatcher.initGeoWithCheck(this);
+    }
+
+    @Override
+    protected void onPause() {
+        BasicData.Uploader bd = new BasicData.Uploader(this);
+
+        String phoneNo = phoneET.getText().toString();
+        if (phoneNo.length() > 0)
+            bd.setPhone(phoneNo);
+
+        String vanityUrl = vanityET.getText().toString();
+        if (vanityUrl.length() > 0)
+            bd.setVanity(vanityUrl);
+
+        bd.upload();
+
+        super.onPause();
     }
 
     @NeedsPermission(SimChecker.PERMISSION)
@@ -116,14 +132,14 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
 
     @Override
     public void onMapReady(GoogleMap map) {
-        LatLng sydney = new LatLng(-33.867, 151.206);
+        LatLng position = new LatLng(-33.867, 151.206);
 
         map.setMyLocationEnabled(true);
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 13));
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 13));
 
         map.addMarker(new MarkerOptions()
                 .title("Sydney")
                 .snippet("The most populous city in Australia.")
-                .position(sydney));
+                .position(position));
     }
 }

@@ -27,24 +27,35 @@ public class SimChecker {
         } else
             cancelPermissionNotification(c);
 
+        // There's no SIM present - ignore
         String currentSubscriber = getCurrentSubscriberId(c);
         if (currentSubscriber == null)
-            return; // There's no SIM present - ignore
+            return;
 
+        // That's the first read - just save
         String cachedSubscriber = getCachedSubscriberId(c);
         if (cachedSubscriber == null) {
             cacheNewSubscriber(c, currentSubscriber);
             return;
         }
 
+        // SIM changed - notify
         if (!cachedSubscriber.equals(currentSubscriber)) {
             cacheNewSubscriber(c, currentSubscriber);
             showSimChangedNotification(c);
         }
     }
 
-    private NotificationManager getNotificationManager(Context c) {
-        return (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
+    private String getCachedSubscriberId(Context c) {
+        return BasicData.getString(c, BasicData.SUBSCRIBER_ID);
+    }
+    private void cacheNewSubscriber(Context c, String newSubscriberId) {
+        BasicData.update(c, BasicData.SUBSCRIBER_ID, newSubscriberId);
+    }
+
+    private String getCurrentSubscriberId(Context c) {
+        TelephonyManager tm = (TelephonyManager) c.getSystemService(Context.TELEPHONY_SERVICE);
+        return tm.getSubscriberId();
     }
 
     private PendingIntent getAppPendingIntent(Context c) {
@@ -66,8 +77,12 @@ public class SimChecker {
         );
     }
 
+    private NotificationManager getNotificationManager(Context c) {
+        return (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
+    }
+
     private void showSimChangedNotification(Context c) {
-        String phoneNo = BasicData.getString(c, BasicData.PHONE_NO);
+        String phoneNo = BasicData.getString(c, BasicData.PHONE);
 
         NotificationCompat.Builder mBuilder =
             new NotificationCompat.Builder(c)
@@ -101,17 +116,5 @@ public class SimChecker {
     }
     private void cancelPermissionNotification(Context c) {
         getNotificationManager(c).cancel(PERMISSION_MISSING_NOTIFICATION_ID);
-    }
-
-    private String getCachedSubscriberId(Context c) {
-        return BasicData.getString(c, BasicData.SUBSCRIBER_ID);
-    }
-    private void cacheNewSubscriber(Context c, String newSubscriberId) {
-        BasicData.update(c, BasicData.SUBSCRIBER_ID, newSubscriberId);
-    }
-
-    private String getCurrentSubscriberId(Context c) {
-        TelephonyManager tm = (TelephonyManager) c.getSystemService(Context.TELEPHONY_SERVICE);
-        return tm.getSubscriberId();
     }
 }

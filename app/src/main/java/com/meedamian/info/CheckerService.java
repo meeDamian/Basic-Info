@@ -4,7 +4,6 @@ import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
 
-import com.example.julian.locationservice.DataUploader;
 import com.example.julian.locationservice.GeoChecker;
 
 public class CheckerService extends Service {
@@ -24,7 +23,7 @@ public class CheckerService extends Service {
             @Override
             public void onLocationAvailable(String country, String city) {
 
-            // TODO: check for replaces
+            // TODO: check for user-set replaces
 
             cacheLocally(country, city);
 
@@ -41,7 +40,7 @@ public class CheckerService extends Service {
     }
 
     private void uploadToParse(String country, String city) {
-        new DataUploader(this)
+        new BasicData.Uploader(this)
             .setLocation(country, city)
             .upload();
     }
