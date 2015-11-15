@@ -10,7 +10,14 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     android:orientation="vertical"
     tools:context=".MainActivity">
-    
+
+    <!-- Not sure about layout_height, maybe we should use layout_weight?? -->
+    <com.google.android.gms.maps.MapView
+        android:id="@+id/map"
+        android:layout_width="match_parent"
+        android:layout_height="300dp"
+        android:clickable="true" />
+
     <android.support.design.widget.TextInputLayout
         android:id="@+id/phoneWrapper"
         android:layout_width="match_parent"

@@ -71,7 +71,7 @@ public class BasicData {
                 @Override
                 public void onCompleted(Exception e, JsonObject result) {
                     JsonObject loc = result.get(_LOCATION).getAsJsonObject();
-                    dc.onDataReady(
+                    dc.onDataReady( // NullPointerException crash
                         result.get(VANITY).getAsString(),
                         result.get(PHONE_NO).getAsString(),
                         loc.get(COUNTRY).getAsString(),

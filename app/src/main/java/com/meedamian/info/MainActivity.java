@@ -10,17 +10,26 @@ import android.widget.EditText;
 
 import com.example.julian.locationservice.DataUploader;
 import com.example.julian.locationservice.GeoChecker;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.OnMapReadyCallback;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.RuntimePermissions;
 
 @RuntimePermissions
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
 
     private EditText phoneET;
 
     private EditText vanityET;
     private TextInputLayout vanityWrapper;
+
+    GoogleMap mMap;
+    MapView mapView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +44,8 @@ public class MainActivity extends AppCompatActivity {
             BasicData.getPublicId(this)
         ));
 
+        mapView = (MapView) findViewById(R.id.map);
+        mapView.getMapAsync(this);
 
         vanityET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -103,5 +114,15 @@ public class MainActivity extends AppCompatActivity {
     @NeedsPermission(GeoChecker.PERMISSION)
     protected void initGeo() {
         new GeoChecker(this);
+    }
+
+    @Override
+    public void onMapReady(GoogleMap googleMap) {
+        mMap = googleMap;
+        // ToDo: get position from GeoChecker
+        LatLng position = new LatLng(-34, 151);
+
+        mMap.addMarker(new MarkerOptions().position(position));
+        mMap.moveCamera(CameraUpdateFactory.newLatLng(position));
     }
 }
