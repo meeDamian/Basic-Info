@@ -6,6 +6,7 @@ import android.preference.PreferenceManager;
 import android.provider.Settings;
 
 import com.example.julian.locationservice.DataUploader;
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
@@ -63,6 +64,11 @@ public class BasicData {
     public static void update(Context c, String key, Integer val) {
         saveSpEd(key, getSpEd(c).putInt(key, val));
     }
+
+    private static String getStringFromJson(JsonObject json, String name) {
+        JsonElement tmp = json.get(name);
+        return (tmp == null) ? null : tmp.getAsString();
+    }
     public static void fetchFresh(Context c, final DataCallback dc) {
         Ion.with(c)
             .load(DataUploader.API_URL + getPublicId(c))
@@ -70,13 +76,13 @@ public class BasicData {
             .setCallback(new FutureCallback<JsonObject>() {
                 @Override
                 public void onCompleted(Exception e, JsonObject result) {
-                    JsonObject loc = result.get(_LOCATION).getAsJsonObject();
-                    dc.onDataReady(
-                        result.get(VANITY).getAsString(),
-                        result.get(PHONE_NO).getAsString(),
-                        loc.get(COUNTRY).getAsString(),
-                        loc.get(CITY).getAsString()
-                    );
+                JsonObject loc = result.get(_LOCATION).getAsJsonObject();
+                dc.onDataReady(
+                    getStringFromJson(result,   VANITY),
+                    getStringFromJson(result,   PHONE_NO),
+                    getStringFromJson(loc,      COUNTRY),
+                    getStringFromJson(loc,      CITY)
+                );
                 }
             });
 
@@ -87,7 +93,6 @@ public class BasicData {
     }
     public static String getPublicId(Context c) {
         String id = getPrivateId(c);
-        // TODO: shorten the string
 
         try {
             MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
