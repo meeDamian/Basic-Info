@@ -21,7 +21,6 @@ import com.example.julian.locationservice.GeoChecker;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
@@ -73,7 +72,9 @@ public class MainActivity extends AppCompatActivity {//implements OnMapReadyCall
                         mLat = address.getLatitude();
                         mLong = address.getLongitude();
                         LatLng position = new LatLng(mLat, mLong);
-                        mGoogleMap.addMarker(new MarkerOptions().position(position));
+                        mGoogleMap.addMarker(new MarkerOptions()
+                                .position(position)
+                                .title(country + ", " + city));
                         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 13));
                         Log.d("Basic Data", String.format("Lat: %f, Lng: %f", address.getLatitude(), address.getLongitude()));
 
