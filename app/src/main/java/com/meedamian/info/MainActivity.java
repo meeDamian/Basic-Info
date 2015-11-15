@@ -174,16 +174,5 @@ public class MainActivity extends AppCompatActivity {//implements OnMapReadyCall
     protected void initGeo() {
         new GeoChecker(this);
     }
-
-//    @Override
-//    public void onMapReady(GoogleMap map) {
-////        LatLng position = new LatLng(mLat, mLong);
-////
-////        Log.d("onMapReady", mLat + ", " + mLong);
-////        map.setMyLocationEnabled(true);
-////        map.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 13));
-////
-////        map.addMarker(new MarkerOptions()
-////                .position(position));
-//    }
+    
 }
