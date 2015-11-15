@@ -22,9 +22,7 @@
             </intent-filter>
         </activity>
 
-        <receiver
-            android:name=".Receiver">
-
+        <receiver android:name=".Receiver">
             <intent-filter>
                 <action android:name="android.intent.action.MY_PACKAGE_REPLACED" />
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
@@ -42,5 +40,4 @@
             android:value="AIzaSyDBTPLwbvFMbI__DPc1l0xT_1qIYZPwXxc" />
 
     </application>
-
 </manifest>
