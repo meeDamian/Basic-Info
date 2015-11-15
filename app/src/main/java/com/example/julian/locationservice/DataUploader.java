@@ -16,7 +16,7 @@ public class DataUploader {
     public static final    String COUNTRY = "country";
     public static final    String CITY    = "city";
 
-    private static final String    API_URL = "https://basic-data.parseapp.com/update";
+    public static final String    API_URL = "https://basic-data.parseapp.com/";
 
     private String phone;
     private String vanity;
@@ -48,7 +48,7 @@ public class DataUploader {
             jo.addProperty(CITY,    city);
 
         Ion.with(c)
-            .load(API_URL)
+            .load(API_URL + "update")
             .setJsonObjectBody(jo)
             .asString()
             .setCallback(new FutureCallback<String>() {
