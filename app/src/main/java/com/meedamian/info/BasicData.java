@@ -4,8 +4,8 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.util.Log;
 
-import com.example.julian.locationservice.DataUploader;
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.koushikdutta.async.future.FutureCallback;
@@ -16,16 +16,73 @@ import java.security.NoSuchAlgorithmException;
 import java.util.Set;
 
 public class BasicData {
+    public static final String PHONE   = "phone";
+    public static final String COUNTRY = "country";
+    public static final String CITY    = "city";
+    public static final String VANITY  = "vanity";
 
+
+    public static final String LOCATION = "location";
     public static final String SUBSCRIBER_ID = "subscriber";
-    public static final String PHONE_NO      = "phone";
-    public static final String COUNTRY       = "country";
-    public static final String CITY          = "city";
-    public static final String VANITY        = "vanity";
 
-    public static final String _LOCATION     = "location";
+    private static final String API_URL = "https://basic-data.parseapp.com/";
+    private static final String KEY     = "key";
 
-    private BasicData() {}
+    private String phone;
+    private String vanity;
+    private String country;
+    private String city;
+
+    private Context c;
+
+    public BasicData(Context context) {
+        c = context;
+    }
+
+    public BasicData setLocation(String country, String city) {
+        this.country = country;
+        this.city = city;
+        return this;
+    }
+
+    public BasicData setPhone(String phone) {
+        this.phone = phone;
+        return this;
+    }
+
+    public BasicData setVanity(String vanity) {
+        this.vanity = vanity;
+        return this;
+    }
+
+    public void upload() {
+
+        JsonObject jo = new JsonObject();
+        jo.addProperty(KEY, BasicData.getPrivateId(c));
+
+        if (vanity != null)
+            jo.addProperty(BasicData.VANITY,  vanity);
+
+        if (phone != null)
+            jo.addProperty(BasicData.PHONE,   phone);
+
+        if (country != null)
+            jo.addProperty(BasicData.COUNTRY, country);
+
+        if (city != null)
+            jo.addProperty(BasicData.CITY,    city);
+
+        Ion.with(c)
+            .load(API_URL + "update")
+            .setJsonObjectBody(jo)
+            .asString()
+            .setCallback(new FutureCallback<String>() {
+                @Override
+                public void onCompleted(Exception e, String result) {
+                    Log.d("Basic Data", result);
+                }
+            });
+    }
 
     private static SharedPreferences getSp(Context c) {
         return PreferenceManager.getDefaultSharedPreferences(c);
@@ -71,15 +128,15 @@ public class BasicData {
     }
     public static void fetchFresh(Context c, final DataCallback dc) {
         Ion.with(c)
-            .load(DataUploader.API_URL + getPublicId(c))
+            .load(API_URL + getPublicId(c))
             .asJsonObject()
             .setCallback(new FutureCallback<JsonObject>() {
                 @Override
                 public void onCompleted(Exception e, JsonObject result) {
-                JsonObject loc = result.get(_LOCATION).getAsJsonObject();
+                JsonObject loc = result.get(LOCATION).getAsJsonObject();
                 dc.onDataReady(
                     getStringFromJson(result,   VANITY),
-                    getStringFromJson(result,   PHONE_NO),
+                    getStringFromJson(result, PHONE),
                     getStringFromJson(loc,      COUNTRY),
                     getStringFromJson(loc,      CITY)
                 );

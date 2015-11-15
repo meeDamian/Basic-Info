@@ -67,7 +67,7 @@ public class SimChecker {
     }
 
     private void showSimChangedNotification(Context c) {
-        String phoneNo = BasicData.getString(c, BasicData.PHONE_NO);
+        String phoneNo = BasicData.getString(c, BasicData.PHONE);
 
         NotificationCompat.Builder mBuilder =
             new NotificationCompat.Builder(c)

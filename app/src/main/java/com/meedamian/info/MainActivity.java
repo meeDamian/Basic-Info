@@ -8,7 +8,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.EditText;
 
-import com.example.julian.locationservice.DataUploader;
 import com.example.julian.locationservice.GeoChecker;
 
 import permissions.dispatcher.NeedsPermission;
@@ -61,17 +60,17 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        DataUploader du = new DataUploader(this);
+        BasicData bd = new BasicData(this);
 
         String phoneNo = phoneET.getText().toString();
         if (phoneNo.length() > 0)
-            du.setPhone(phoneNo);
+            bd.setPhone(phoneNo);
 
         String vanityUrl = vanityET.getText().toString();
         if (vanityUrl.length() > 0)
-            du.setVanity(vanityUrl);
+            bd.setVanity(vanityUrl);
 
-        du.upload();
+        bd.upload();
 
         super.onPause();
     }
