@@ -91,8 +91,8 @@ public class BasicData {
 
         try {
             MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
-            messageDigest.update(id.getBytes());
-            return new String(messageDigest.digest()).substring(0, 8);
+            byte[] digest = messageDigest.digest(id.getBytes());
+            return String.format("%064x", new java.math.BigInteger(1, digest)).substring(0, 8);
 
         } catch (NoSuchAlgorithmException e) {
             return null;
