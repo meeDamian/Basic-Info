@@ -7,9 +7,6 @@ import android.os.IBinder;
 import com.example.julian.locationservice.DataUploader;
 import com.example.julian.locationservice.GeoChecker;
 
-import java.util.HashSet;
-import java.util.Set;
-
 public class CheckerService extends Service {
     public CheckerService() {}
 
@@ -26,16 +23,21 @@ public class CheckerService extends Service {
         new GeoChecker(this, new GeoChecker.LocationAvailabler() {
             @Override
             public void onLocationAvailable(String country, String city) {
-            Set<String> locationSet = new HashSet<>();
-            locationSet.add(country);
-            locationSet.add(city);
-            BasicData.update(CheckerService.this, BasicData.LOCATION, locationSet);
+
+            // TODO: check for replaces
+
+            cacheLocally(country, city);
 
             uploadToParse(country, city);
             }
         });
 
         return super.onStartCommand(intent, flags, startId);
+    }
+
+    private void cacheLocally(String country, String city) {
+        BasicData.update(this, BasicData.COUNTRY, country);
+        BasicData.update(this, BasicData.CITY, city);
     }
 
     private void uploadToParse(String country, String city) {
