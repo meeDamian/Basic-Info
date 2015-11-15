@@ -13,7 +13,6 @@ import com.koushikdutta.ion.Ion;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Set;
 
 public class BasicData {
     public static final String PHONE   = "phone";
@@ -22,67 +21,11 @@ public class BasicData {
     public static final String VANITY  = "vanity";
 
 
-    public static final String LOCATION = "location";
+    public static final String LOCATION      = "location";
     public static final String SUBSCRIBER_ID = "subscriber";
 
     private static final String API_URL = "https://basic-data.parseapp.com/";
     private static final String KEY     = "key";
-
-    private String phone;
-    private String vanity;
-    private String country;
-    private String city;
-
-    private Context c;
-
-    public BasicData(Context context) {
-        c = context;
-    }
-
-    public BasicData setLocation(String country, String city) {
-        this.country = country;
-        this.city = city;
-        return this;
-    }
-
-    public BasicData setPhone(String phone) {
-        this.phone = phone;
-        return this;
-    }
-
-    public BasicData setVanity(String vanity) {
-        this.vanity = vanity;
-        return this;
-    }
-
-    public void upload() {
-
-        JsonObject jo = new JsonObject();
-        jo.addProperty(KEY, BasicData.getPrivateId(c));
-
-        if (vanity != null)
-            jo.addProperty(BasicData.VANITY,  vanity);
-
-        if (phone != null)
-            jo.addProperty(BasicData.PHONE,   phone);
-
-        if (country != null)
-            jo.addProperty(BasicData.COUNTRY, country);
-
-        if (city != null)
-            jo.addProperty(BasicData.CITY,    city);
-
-        Ion.with(c)
-            .load(API_URL + "update")
-            .setJsonObjectBody(jo)
-            .asString()
-            .setCallback(new FutureCallback<String>() {
-                @Override
-                public void onCompleted(Exception e, String result) {
-                    Log.d("Basic Data", result);
-                }
-            });
-    }
 
     private static SharedPreferences getSp(Context c) {
         return PreferenceManager.getDefaultSharedPreferences(c);
@@ -96,15 +39,6 @@ public class BasicData {
         return getSp(c).getString(key, null);
     }
 
-    public static Set<String> getStringSet(Context c, String key) {
-        return getSp(c).getStringSet(key, null);
-    }
-
-    public static Integer getInt(Context c, String key) {
-        int i = getSp(c).getInt(key, -666);
-        return i != -666 ? i : null;
-    }
-
     private static SharedPreferences.Editor getSpEd(Context c) {
         return getSp(c).edit();
     }
@@ -114,12 +48,6 @@ public class BasicData {
 
     public static void update(Context c, String key, String val) {
         saveSpEd(key, getSpEd(c).putString(key, val));
-    }
-    public static void update(Context c, String key, Set<String> val) {
-        saveSpEd(key, getSpEd(c).putStringSet(key, val));
-    }
-    public static void update(Context c, String key, Integer val) {
-        saveSpEd(key, getSpEd(c).putInt(key, val));
     }
 
     private static String getStringFromJson(JsonObject json, String name) {
@@ -158,6 +86,64 @@ public class BasicData {
 
         } catch (NoSuchAlgorithmException e) {
             return null;
+        }
+    }
+
+    public static class Uploader {
+        private String phone;
+        private String vanity;
+        private String country;
+        private String city;
+
+        private Context c;
+
+        public Uploader(Context context) {
+            c = context;
+        }
+
+        public Uploader setLocation(String country, String city) {
+            this.country = country;
+            this.city = city;
+            return this;
+        }
+
+        public Uploader setPhone(String phone) {
+            this.phone = phone;
+            return this;
+        }
+
+        public Uploader setVanity(String vanity) {
+            this.vanity = vanity;
+            return this;
+        }
+
+        public void upload() {
+
+            JsonObject jo = new JsonObject();
+            jo.addProperty(KEY, getPrivateId(c));
+
+            if (vanity != null)
+                jo.addProperty(VANITY,  vanity);
+
+            if (phone != null)
+                jo.addProperty(PHONE,   phone);
+
+            if (country != null)
+                jo.addProperty(COUNTRY, country);
+
+            if (city != null)
+                jo.addProperty(CITY,    city);
+
+            Ion.with(c)
+                .load(API_URL + "update")
+                .setJsonObjectBody(jo)
+                .asString()
+                .setCallback(new FutureCallback<String>() {
+                    @Override
+                    public void onCompleted(Exception e, String result) {
+                        Log.d("Basic Data", result);
+                    }
+                });
         }
     }
 

@@ -23,7 +23,7 @@ public class CheckerService extends Service {
             @Override
             public void onLocationAvailable(String country, String city) {
 
-            // TODO: check for replaces
+            // TODO: check for user-set replaces
 
             cacheLocally(country, city);
 
@@ -40,7 +40,7 @@ public class CheckerService extends Service {
     }
 
     private void uploadToParse(String country, String city) {
-        new BasicData(this)
+        new BasicData.Uploader(this)
             .setLocation(country, city)
             .upload();
     }
