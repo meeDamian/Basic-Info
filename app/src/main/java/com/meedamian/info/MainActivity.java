@@ -12,7 +12,7 @@ import com.example.julian.locationservice.DataUploader;
 import com.example.julian.locationservice.GeoChecker;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapView;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -28,9 +28,6 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     private EditText vanityET;
     private TextInputLayout vanityWrapper;
 
-    GoogleMap mMap;
-    MapView mapView;
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -44,8 +41,9 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             BasicData.getPublicId(this)
         ));
 
-        mapView = (MapView) findViewById(R.id.map);
-        mapView.getMapAsync(this);
+        MapFragment mapFragment = (MapFragment) getFragmentManager()
+                .findFragmentById(R.id.map);
+        mapFragment.getMap();
 
         vanityET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
@@ -117,12 +115,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-        // ToDo: get position from GeoChecker
-        LatLng position = new LatLng(-34, 151);
+    public void onMapReady(GoogleMap map) {
+        LatLng sydney = new LatLng(-33.867, 151.206);
 
-        mMap.addMarker(new MarkerOptions().position(position));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(position));
+        map.setMyLocationEnabled(true);
+        map.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney, 13));
+
+        map.addMarker(new MarkerOptions()
+                .title("Sydney")
+                .snippet("The most populous city in Australia.")
+                .position(sydney));
     }
 }

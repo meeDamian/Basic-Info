@@ -3,5 +3,4 @@
     <string name="current_url">Current URL: /%s</string>
     <string name="phone_hint">Phone Number</string>
     <string name="cont_desc_copy_button">Copy Button</string>
-    <string name="title_activity_maps">Map</string>
 </resources>
