@@ -1,13 +1,21 @@
 package com.meedamian.info;
 
+
+import android.content.ClipData;
+import android.content.ClipboardManager;
+import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
+import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
+import android.widget.ImageButton;
+import android.widget.Toast;
 
 import com.example.julian.locationservice.GeoChecker;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -23,30 +31,71 @@ import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.RuntimePermissions;
 
 @RuntimePermissions
-public class MainActivity extends AppCompatActivity implements OnMapReadyCallback {
+public class MainActivity extends AppCompatActivity {//implements OnMapReadyCallback {
 
     private EditText phoneET;
-
     private EditText vanityET;
 
-    Geocoder mGeocoder;
+    GoogleMap mGoogleMap;
+    private double mLat;
+    private double mLong;
+
+    private BasicData bd;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        bd = BasicData.getInstance(this, new BasicData.DataCallback() {
+            @Override
+            public void onDataReady(String vanity, String phone, String country, String city) {
+                if (vanity != null)
+                    vanityET.setText(vanity);
+
+                if (phone != null)
+                    phoneET.setText(phone);
+
+
+                String locationQuery = null;
+                if (country != null)
+                    locationQuery = country;
+
+                if (city != null) {
+                    if (locationQuery == null)
+                        locationQuery = city;
+                    else
+                        locationQuery += ", " + city;
+                }
+
+                if (locationQuery != null) {
+                    try {
+                        Address address = new Geocoder(MainActivity.this).getFromLocationName(locationQuery, 1).get(0);
+                        mLat = address.getLatitude();
+                        mLong = address.getLongitude();
+                        LatLng position = new LatLng(mLat, mLong);
+                        mGoogleMap.addMarker(new MarkerOptions().position(position));
+                        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 13));
+                        Log.d("Basic Data", String.format("Lat: %f, Lng: %f", address.getLatitude(), address.getLongitude()));
+
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        });
 
         phoneET = (EditText) findViewById(R.id.phone);
 
         TextInputLayout vanityWrapper = (TextInputLayout) findViewById(R.id.vanityWrapper);
         vanityWrapper.setHint(String.format(
+
                 getString(R.string.current_url),
-                BasicData.getPublicId(this)
+                bd.getPublicId()
         ));
 
         MapFragment mapFragment = (MapFragment) getFragmentManager()
                 .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
+        mGoogleMap = mapFragment.getMap();
 
         vanityET = (EditText) findViewById(R.id.vanity);
 
@@ -63,6 +112,25 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
             }
         });
 
+        ImageButton copy = (ImageButton) findViewById(R.id.copy);
+        copy.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                ClipData cd = ClipData.newPlainText("Basic Data user URL", bd.getPrettyUrl());
+                cm.setPrimaryClip(cd);
+                Toast.makeText(MainActivity.this, "URL copied to clipboard", Toast.LENGTH_LONG).show();
+            }
+        });
+
+        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.save);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                save();
+            }
+        });
+
         init();
     }
 
@@ -73,40 +141,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
     }
 
     private void init() {
-        BasicData.fetchFresh(this, new BasicData.DataCallback() {
-            @Override
-            public void onDataReady(String vanity, String phone, String country, String city) {
+    Receiver.setAlarm(this);
+    MainActivityPermissionsDispatcher.initSimWithCheck(this);
+    MainActivityPermissionsDispatcher.initGeoWithCheck(this);
+}
 
-                if (vanity != null)
-                    vanityET.setText(vanity);
-
-                if (phone != null)
-                    phoneET.setText(phone);
-
-                String locationQuery = null;
-
-                if (country != null)
-                    locationQuery = country;
-
-                if (city != null)
-                    try {
-                        mGeocoder.getFromLocationName(country + ", " + city, 1);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
-
-        Receiver.setAlarm(this);
-        MainActivityPermissionsDispatcher.initSimWithCheck(this);
-        MainActivityPermissionsDispatcher.initGeoWithCheck(this);
-    }
-
-    @Override
-    protected void onPause() {
-        BasicData.Uploader bd = new BasicData.Uploader(this);
-
+    private void save() {
         String phoneNo = phoneET.getText().toString();
         if (phoneNo.length() > 0)
             bd.setPhone(phoneNo);
@@ -115,8 +155,12 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         if (vanityUrl.length() > 0)
             bd.setVanity(vanityUrl);
 
-        bd.upload();
+        bd.save().upload();
+    }
 
+    @Override
+    protected void onPause() {
+        save();
         super.onPause();
     }
 
@@ -130,16 +174,15 @@ public class MainActivity extends AppCompatActivity implements OnMapReadyCallbac
         new GeoChecker(this);
     }
 
-    @Override
-    public void onMapReady(GoogleMap map) {
-        LatLng position = new LatLng(-33.867, 151.206);
-
-        map.setMyLocationEnabled(true);
-        map.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 13));
-
-        map.addMarker(new MarkerOptions()
-                .title("Sydney")
-                .snippet("The most populous city in Australia.")
-                .position(position));
-    }
+//    @Override
+//    public void onMapReady(GoogleMap map) {
+////        LatLng position = new LatLng(mLat, mLong);
+////
+////        Log.d("onMapReady", mLat + ", " + mLong);
+////        map.setMyLocationEnabled(true);
+////        map.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 13));
+////
+////        map.addMarker(new MarkerOptions()
+////                .position(position));
+//    }
 }

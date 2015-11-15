@@ -4,6 +4,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
 import android.provider.Settings;
+import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.google.gson.JsonElement;
@@ -24,63 +25,49 @@ public class BasicData {
     public static final String LOCATION = "location";
     public static final String SUBSCRIBER_ID = "subscriber";
 
-    private static final String API_URL = "https://basic-data.parseapp.com/";
+    private static final String API_BASE_URL   = "https://basic-data.parseapp.com/";
+    private static final String API_UPLOAD_URL = API_BASE_URL + "update";
+
     private static final String KEY = "key";
 
-    private static SharedPreferences getSp(Context c) {
-        return PreferenceManager.getDefaultSharedPreferences(c);
+    private Context c;
+
+    private String phone;
+    private String vanity;
+    private String country;
+    private String city;
+
+    private BasicData(Context context, @Nullable DataCallback dc) {
+        this.c = context;
+
+        if (dc != null)
+            refreshData(dc);
     }
 
-    private static String getUpdatedKey(String key) {
-        return key + "_updated";
+    private static BasicData instance = null;
+
+    public static BasicData getInstance(Context context, @Nullable DataCallback dc) {
+        if (instance == null)
+            instance = new BasicData(context, dc);
+
+        else if (dc != null)
+            instance.refreshData(dc);
+
+        return instance;
     }
 
-    public static String getString(Context c, String key) {
-        return getSp(c).getString(key, null);
+    public static BasicData getInstance(Context c) {
+        return getInstance(c, null);
     }
 
-    private static SharedPreferences.Editor getSpEd(Context c) {
-        return getSp(c).edit();
+    public String getPrivateId() {
+        return Settings.Secure.getString(
+            c.getContentResolver(),
+            Settings.Secure.ANDROID_ID
+        );
     }
-
-    private static void saveSpEd(String key, SharedPreferences.Editor ed) {
-        ed.putLong(getUpdatedKey(key), System.currentTimeMillis()).apply();
-    }
-
-    public static void update(Context c, String key, String val) {
-        saveSpEd(key, getSpEd(c).putString(key, val));
-    }
-
-    private static String getStringFromJson(JsonObject json, String name) {
-        JsonElement tmp = json.get(name);
-        return (tmp == null) ? null : tmp.getAsString();
-    }
-
-    public static void fetchFresh(Context c, final DataCallback dc) {
-        Ion.with(c)
-                .load(API_URL + getPublicId(c))
-                .asJsonObject()
-                .setCallback(new FutureCallback<JsonObject>() {
-                    @Override
-                    public void onCompleted(Exception e, JsonObject result) {
-                        JsonObject loc = result.get(LOCATION).getAsJsonObject();
-                        dc.onDataReady(
-                                getStringFromJson(result, VANITY),
-                                getStringFromJson(result, PHONE),
-                                getStringFromJson(loc, COUNTRY),
-                                getStringFromJson(loc, CITY)
-                        );
-                    }
-                });
-
-    }
-
-    public static String getPrivateId(Context c) {
-        return Settings.Secure.getString(c.getContentResolver(), Settings.Secure.ANDROID_ID);
-    }
-
-    public static String getPublicId(Context c) {
-        String id = getPrivateId(c);
+    public String getPublicId() {
+        String id = getPrivateId();
 
         try {
             MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
@@ -91,66 +78,139 @@ public class BasicData {
             return null;
         }
     }
+    public String getPublicUrl() {
+        return API_BASE_URL + getPublicId();
+    }
+    public String getPrettyUrl() {
+        return API_BASE_URL + (vanity != null ? vanity : getPublicId());
+    }
+    public String getString(String key) {
+        return getSp().getString(key, null);
+    }
+    public void cacheString(String key, String val) {
+        getSpEditor()
+            .putString(key, val)
+            .putLong(getUpdatesKey(key), System.currentTimeMillis())
+            .apply();
+    }
 
-    public static class Uploader {
-        private String phone;
-        private String vanity;
-        private String country;
-        private String city;
+    private void cleanTheDirt() {
+        vanityDirty =
+        phoneDirty =
+        locationDirty =
+            false;
+    }
 
-        private Context c;
+    private boolean locationDirty = false;
+    public BasicData setLocation(String country, String city) {
+        this.country = country;
+        this.city = city;
+        locationDirty = true;
+        return this;
+    }
 
-        public Uploader(Context context) {
-            c = context;
+
+    private boolean phoneDirty = false;
+    public BasicData setPhone(String phone) {
+        this.phone = phone;
+        phoneDirty = true;
+        return this;
+    }
+
+    private boolean vanityDirty = false;
+    public BasicData setVanity(String vanity) {
+        this.vanity = vanity;
+        vanityDirty = true;
+        return this;
+    }
+
+    private SharedPreferences getSp() {
+        return PreferenceManager.getDefaultSharedPreferences(c);
+    }
+    private SharedPreferences.Editor getSpEditor() {
+        return getSp().edit();
+    }
+    private static String getUpdatesKey(String key) {
+        return key + "_updated";
+    }
+    private static String getStringFromJson(JsonObject json, String name) {
+        JsonElement tmp = json.get(name);
+        return (tmp == null) ? null : tmp.getAsString();
+    }
+
+
+    private void refreshData(final DataCallback dc) {
+        Ion.with(c)
+            .load(getPublicUrl())
+            .asJsonObject()
+            .setCallback(new FutureCallback<JsonObject>() {
+                @Override
+                public void onCompleted(Exception e, JsonObject result) {
+                JsonObject loc = result.get(LOCATION).getAsJsonObject();
+
+                vanity = getStringFromJson(result, VANITY);
+                phone = getStringFromJson(result, PHONE);
+                country = getStringFromJson(loc, COUNTRY);
+                city = getStringFromJson(loc, CITY);
+
+                cleanTheDirt();
+
+                dc.onDataReady(vanity, phone, country, city);
+                }
+            });
+    }
+
+    public BasicData save() {
+        if (locationDirty) {
+            cacheString(COUNTRY, country);
+            cacheString(CITY, city);
         }
 
-        public Uploader setLocation(String country, String city) {
-            this.country = country;
-            this.city = city;
-            return this;
-        }
+        if (phoneDirty)
+            cacheString(PHONE, phone);
 
-        public Uploader setPhone(String phone) {
-            this.phone = phone;
-            return this;
-        }
+        if (vanityDirty)
+            cacheString(VANITY, vanity);
 
-        public Uploader setVanity(String vanity) {
-            this.vanity = vanity;
-            return this;
-        }
+        cleanTheDirt();
 
-        public void upload() {
+        return this;
+    }
 
-            JsonObject jo = new JsonObject();
-            jo.addProperty(KEY, getPrivateId(c));
+    public void upload() {
+        JsonObject jo = new JsonObject();
+        jo.addProperty(KEY, getPrivateId());
 
-            if (vanity != null)
-                jo.addProperty(VANITY, vanity);
+        if (vanity != null)
+            jo.addProperty(VANITY,  vanity);
 
-            if (phone != null)
-                jo.addProperty(PHONE, phone);
+        if (phone != null)
+            jo.addProperty(PHONE,   phone);
 
-            if (country != null)
-                jo.addProperty(COUNTRY, country);
+        if (country != null)
+            jo.addProperty(COUNTRY, country);
 
-            if (city != null)
-                jo.addProperty(CITY, city);
+        if (city != null)
+            jo.addProperty(CITY,    city);
 
-            Ion.with(c)
-                    .load(API_URL + "update")
-                    .setJsonObjectBody(jo)
-                    .asString()
-                    .setCallback(new FutureCallback<String>() {
-                        @Override
-                        public void onCompleted(Exception e, String result) {
-                            Log.d("Basic Data", result);
-                        }
-                    });
-        }
+        Ion.with(c)
+                .load(API_UPLOAD_URL)
+                .setJsonObjectBody(jo)
+                .asString()
+                .setCallback(new FutureCallback<String>() {
+                    @Override
+                    public void onCompleted(Exception e, String result) {
+                        Log.d("Basic Data", result);
+                    }
+                });
     }
 
     public interface DataCallback {
-        void onDataReady(String vanity, String phone, String country, String city);
+        void onDataReady(
+            @Nullable String vanity,
+            @Nullable String phone,
+            @Nullable String country,
+            @Nullable String city
+        );
     }
 }

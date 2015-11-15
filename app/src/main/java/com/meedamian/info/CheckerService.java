@@ -25,23 +25,18 @@ public class CheckerService extends Service {
 
             // TODO: check for user-set replaces
 
-            cacheLocally(country, city);
-
-            uploadToParse(country, city);
+            save(country, city);
             }
         });
 
         return super.onStartCommand(intent, flags, startId);
     }
 
-    private void cacheLocally(String country, String city) {
-        BasicData.update(this, BasicData.COUNTRY, country);
-        BasicData.update(this, BasicData.CITY, city);
-    }
-
-    private void uploadToParse(String country, String city) {
-        new BasicData.Uploader(this)
+    private void save(String country, String city) {
+        BasicData.getInstance(this)
             .setLocation(country, city)
+            .save()
             .upload();
     }
+
 }
