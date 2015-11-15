@@ -19,7 +19,11 @@ public class SimChecker {
     private static final int PHONE_CHANGED_NOTIFICATION_ID      = 1;
     private static final int PERMISSION_MISSING_NOTIFICATION_ID = 2;
 
+    private BasicData bd;
+
     public SimChecker(Context c) {
+        bd = BasicData.getInstance(c);
+
         if (!PermissionUtils.hasSelfPermissions(c, PERMISSION)) {
             showPermissionNotification(c);
             return;
@@ -47,10 +51,10 @@ public class SimChecker {
     }
 
     private String getCachedSubscriberId(Context c) {
-        return BasicData.getString(c, BasicData.SUBSCRIBER_ID);
+        return bd.getString(BasicData.SUBSCRIBER_ID);
     }
     private void cacheNewSubscriber(Context c, String newSubscriberId) {
-        BasicData.update(c, BasicData.SUBSCRIBER_ID, newSubscriberId);
+        bd.cacheString(BasicData.SUBSCRIBER_ID, newSubscriberId);
     }
 
     private String getCurrentSubscriberId(Context c) {
@@ -82,7 +86,7 @@ public class SimChecker {
     }
 
     private void showSimChangedNotification(Context c) {
-        String phoneNo = BasicData.getString(c, BasicData.PHONE);
+        String phoneNo = bd.getString(BasicData.PHONE);
 
         NotificationCompat.Builder mBuilder =
             new NotificationCompat.Builder(c)
