@@ -48,40 +48,40 @@ public class MainActivity extends AppCompatActivity {//implements OnMapReadyCall
         bd = BasicData.getInstance(this, new BasicData.DataCallback() {
             @Override
             public void onDataReady(String vanity, String phone, String country, String city) {
-                if (vanity != null)
-                    vanityET.setText(vanity);
+            if (vanity != null)
+                vanityET.setText(vanity);
 
-                if (phone != null)
-                    phoneET.setText(phone);
+            if (phone != null)
+                phoneET.setText(phone);
 
 
-                String locationQuery = null;
-                if (country != null)
-                    locationQuery = country;
+            String locationQuery = null;
+            if (country != null)
+                locationQuery = country;
 
-                if (city != null) {
-                    if (locationQuery == null)
-                        locationQuery = city;
-                    else
-                        locationQuery += ", " + city;
+            if (city != null) {
+                if (locationQuery == null)
+                    locationQuery = city;
+                else
+                    locationQuery += ", " + city;
+            }
+
+            if (locationQuery != null) {
+                try {
+                    Address address = new Geocoder(MainActivity.this).getFromLocationName(locationQuery, 1).get(0);
+                    mLat = address.getLatitude();
+                    mLong = address.getLongitude();
+                    LatLng position = new LatLng(mLat, mLong);
+                    mGoogleMap.addMarker(new MarkerOptions()
+                            .position(position)
+                            .title(country + ", " + city));
+                    mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 13));
+                    Log.d("Basic Data", String.format("Lat: %f, Lng: %f", address.getLatitude(), address.getLongitude()));
+
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-
-                if (locationQuery != null) {
-                    try {
-                        Address address = new Geocoder(MainActivity.this).getFromLocationName(locationQuery, 1).get(0);
-                        mLat = address.getLatitude();
-                        mLong = address.getLongitude();
-                        LatLng position = new LatLng(mLat, mLong);
-                        mGoogleMap.addMarker(new MarkerOptions()
-                                .position(position)
-                                .title(country + ", " + city));
-                        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 13));
-                        Log.d("Basic Data", String.format("Lat: %f, Lng: %f", address.getLatitude(), address.getLongitude()));
-
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
+            }
             }
         });
 
@@ -89,9 +89,8 @@ public class MainActivity extends AppCompatActivity {//implements OnMapReadyCall
 
         TextInputLayout vanityWrapper = (TextInputLayout) findViewById(R.id.vanityWrapper);
         vanityWrapper.setHint(String.format(
-
-                getString(R.string.current_url),
-                bd.getPublicId()
+            getString(R.string.current_url),
+            bd.getPublicId()
         ));
 
         MapFragment mapFragment = (MapFragment) getFragmentManager()
@@ -103,13 +102,13 @@ public class MainActivity extends AppCompatActivity {//implements OnMapReadyCall
         vanityET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, final boolean hasFocus) {
-                final Handler handler = new Handler();
-                handler.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        vanityET.setHint(hasFocus ? "Set your vanity" : "");
-                    }
-                }, 200);
+            final Handler handler = new Handler();
+            handler.postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    vanityET.setHint(hasFocus ? "Set your vanity" : "");
+                }
+            }, 200);
             }
         });
 
@@ -142,10 +141,10 @@ public class MainActivity extends AppCompatActivity {//implements OnMapReadyCall
     }
 
     private void init() {
-    Receiver.setAlarm(this);
-    MainActivityPermissionsDispatcher.initSimWithCheck(this);
-    MainActivityPermissionsDispatcher.initGeoWithCheck(this);
-}
+        Receiver.setAlarm(this);
+        MainActivityPermissionsDispatcher.initSimWithCheck(this);
+        MainActivityPermissionsDispatcher.initGeoWithCheck(this);
+    }
 
     private void save() {
         String phoneNo = phoneET.getText().toString();
@@ -174,5 +173,4 @@ public class MainActivity extends AppCompatActivity {//implements OnMapReadyCall
     protected void initGeo() {
         new GeoChecker(this);
     }
-    
 }

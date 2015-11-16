@@ -16,13 +16,13 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
 public class BasicData {
-    public static final String PHONE = "phone";
+    public static final String PHONE   = "phone";
     public static final String COUNTRY = "country";
-    public static final String CITY = "city";
-    public static final String VANITY = "vanity";
+    public static final String CITY    = "city";
+    public static final String VANITY  = "vanity";
 
 
-    public static final String LOCATION = "location";
+    public static final String LOCATION      = "location";
     public static final String SUBSCRIBER_ID = "subscriber";
 
     private static final String API_BASE_URL   = "https://basic-data.parseapp.com/";
@@ -109,7 +109,6 @@ public class BasicData {
         return this;
     }
 
-
     private boolean phoneDirty = false;
     public BasicData setPhone(String phone) {
         this.phone = phone;
@@ -194,15 +193,15 @@ public class BasicData {
             jo.addProperty(CITY,    city);
 
         Ion.with(c)
-                .load(API_UPLOAD_URL)
-                .setJsonObjectBody(jo)
-                .asString()
-                .setCallback(new FutureCallback<String>() {
-                    @Override
-                    public void onCompleted(Exception e, String result) {
-                        Log.d("Basic Data", result);
-                    }
-                });
+             .load(API_UPLOAD_URL)
+             .setJsonObjectBody(jo)
+             .asString()
+             .setCallback(new FutureCallback<String>() {
+                 @Override
+                 public void onCompleted(Exception e, String result) {
+                     Log.d("Basic Data", result);
+                 }
+             });
     }
 
     public interface DataCallback {
