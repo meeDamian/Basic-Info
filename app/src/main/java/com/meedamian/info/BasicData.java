@@ -197,8 +197,9 @@ public class BasicData {
             .asString()
             .setCallback(new FutureCallback<String>() {
                 @Override
-                public void onCompleted(Exception e, String result) {
-                    Log.d("Basic Data", result);
+                public void onCompleted(Exception e, @Nullable String result) {
+                    if (result != null)
+                        Log.d("Basic Data", result);
                 }
             });
     }
