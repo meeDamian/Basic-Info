@@ -136,8 +136,7 @@ public class BasicData {
         JsonElement tmp = json.get(name);
         return (tmp == null) ? null : tmp.getAsString();
     }
-
-
+    
     private void refreshData(final DataCallback dc) {
         Ion.with(c)
             .load(getPublicUrl())
