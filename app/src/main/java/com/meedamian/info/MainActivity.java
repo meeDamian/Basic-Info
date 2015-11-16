@@ -1,5 +1,6 @@
 package com.meedamian.info;
 
+
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.location.Address;
@@ -17,6 +18,11 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.example.julian.locationservice.GeoChecker;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.IOException;
 
@@ -24,10 +30,14 @@ import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.RuntimePermissions;
 
 @RuntimePermissions
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity {//implements OnMapReadyCallback {
 
     private EditText phoneET;
     private EditText vanityET;
+
+    GoogleMap mGoogleMap;
+    private double mLat;
+    private double mLong;
 
     private BasicData bd;
 
@@ -35,7 +45,6 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
-
         bd = BasicData.getInstance(this, new BasicData.DataCallback() {
             @Override
             public void onDataReady(String vanity, String phone, String country, String city) {
@@ -60,6 +69,13 @@ public class MainActivity extends AppCompatActivity {
             if (locationQuery != null) {
                 try {
                     Address address = new Geocoder(MainActivity.this).getFromLocationName(locationQuery, 1).get(0);
+                    mLat = address.getLatitude();
+                    mLong = address.getLongitude();
+                    LatLng position = new LatLng(mLat, mLong);
+                    mGoogleMap.addMarker(new MarkerOptions()
+                            .position(position)
+                            .title(country + ", " + city));
+                    mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 13));
                     Log.d("Basic Data", String.format("Lat: %f, Lng: %f", address.getLatitude(), address.getLongitude()));
 
                 } catch (IOException e) {
@@ -77,7 +93,12 @@ public class MainActivity extends AppCompatActivity {
             bd.getPublicId()
         ));
 
+        MapFragment mapFragment = (MapFragment) getFragmentManager()
+                .findFragmentById(R.id.map);
+        mGoogleMap = mapFragment.getMap();
+
         vanityET = (EditText) findViewById(R.id.vanity);
+
         vanityET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, final boolean hasFocus) {
@@ -85,7 +106,7 @@ public class MainActivity extends AppCompatActivity {
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                vanityET.setHint(hasFocus ? "Set your vanity" : "");
+                    vanityET.setHint(hasFocus ? "Set your vanity" : "");
                 }
             }, 200);
             }
@@ -95,10 +116,10 @@ public class MainActivity extends AppCompatActivity {
         copy.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-            ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-            ClipData cd = ClipData.newPlainText("Basic Data user URL", bd.getPrettyUrl());
-            cm.setPrimaryClip(cd);
-            Toast.makeText(MainActivity.this, "URL copied to clipboard", Toast.LENGTH_LONG).show();
+                ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+                ClipData cd = ClipData.newPlainText("Basic Data user URL", bd.getPrettyUrl());
+                cm.setPrimaryClip(cd);
+                Toast.makeText(MainActivity.this, "URL copied to clipboard", Toast.LENGTH_LONG).show();
             }
         });
 
