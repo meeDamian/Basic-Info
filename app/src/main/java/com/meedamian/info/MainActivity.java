@@ -11,7 +11,6 @@ import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -36,8 +35,6 @@ public class MainActivity extends AppCompatActivity {//implements OnMapReadyCall
     private EditText vanityET;
 
     GoogleMap mGoogleMap;
-    private double mLat;
-    private double mLong;
 
     private BasicData bd;
 
@@ -69,14 +66,16 @@ public class MainActivity extends AppCompatActivity {//implements OnMapReadyCall
             if (locationQuery != null) {
                 try {
                     Address address = new Geocoder(MainActivity.this).getFromLocationName(locationQuery, 1).get(0);
-                    mLat = address.getLatitude();
-                    mLong = address.getLongitude();
-                    LatLng position = new LatLng(mLat, mLong);
+                    LatLng position = new LatLng(
+                        address.getLatitude(),
+                        address.getLongitude()
+                    );
+
                     mGoogleMap.addMarker(new MarkerOptions()
                             .position(position)
                             .title(country + ", " + city));
-                    mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 13));
-                    Log.d("Basic Data", String.format("Lat: %f, Lng: %f", address.getLatitude(), address.getLongitude()));
+
+                    mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 11));
 
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -94,7 +93,7 @@ public class MainActivity extends AppCompatActivity {//implements OnMapReadyCall
         ));
 
         MapFragment mapFragment = (MapFragment) getFragmentManager()
-                .findFragmentById(R.id.map);
+            .findFragmentById(R.id.map);
         mGoogleMap = mapFragment.getMap();
 
         vanityET = (EditText) findViewById(R.id.vanity);
