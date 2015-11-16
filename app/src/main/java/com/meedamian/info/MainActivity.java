@@ -94,7 +94,10 @@ public class MainActivity extends AppCompatActivity {//implements OnMapReadyCall
 
         MapFragment mapFragment = (MapFragment) getFragmentManager()
             .findFragmentById(R.id.map);
+
         mGoogleMap = mapFragment.getMap();
+        mGoogleMap.getUiSettings().setAllGesturesEnabled(false);
+        mGoogleMap.getUiSettings().setZoomControlsEnabled(true);
 
         vanityET = (EditText) findViewById(R.id.vanity);
 
