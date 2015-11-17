@@ -29,7 +29,7 @@ import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.RuntimePermissions;
 
 @RuntimePermissions
-public class MainActivity extends AppCompatActivity {//implements OnMapReadyCallback {
+public class MainActivity extends AppCompatActivity {
 
     private EditText phoneET;
     private EditText vanityET;
