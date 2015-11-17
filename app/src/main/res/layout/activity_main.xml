@@ -19,7 +19,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:id="@+id/toolbar"
-        android:background="#10000000">
+        android:background="@android:color/transparent">
     </android.support.v7.widget.Toolbar>
 
     <android.support.design.widget.TextInputLayout
