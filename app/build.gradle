@@ -33,4 +33,5 @@ dependencies {
     compile 'com.google.android.gms:play-services-location:8.3.0'
     compile 'com.google.android.gms:play-services-maps:8.3.0'
     compile 'com.koushikdutta.ion:ion:2.1.6'
+    compile 'com.android.support:percent:23.1.1'
 }

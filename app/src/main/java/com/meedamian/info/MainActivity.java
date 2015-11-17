@@ -29,7 +29,7 @@ import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.RuntimePermissions;
 
 @RuntimePermissions
-public class MainActivity extends AppCompatActivity {//implements OnMapReadyCallback {
+public class MainActivity extends AppCompatActivity {
 
     private EditText phoneET;
     private EditText vanityET;
@@ -42,6 +42,11 @@ public class MainActivity extends AppCompatActivity {//implements OnMapReadyCall
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+
+        getWindow().getDecorView().setSystemUiVisibility(
+                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
+                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
+
         bd = BasicData.getInstance(this, new BasicData.DataCallback() {
             @Override
             public void onDataReady(String vanity, String phone, String country, String city) {
@@ -94,7 +99,10 @@ public class MainActivity extends AppCompatActivity {//implements OnMapReadyCall
 
         MapFragment mapFragment = (MapFragment) getFragmentManager()
             .findFragmentById(R.id.map);
+
         mGoogleMap = mapFragment.getMap();
+        mGoogleMap.getUiSettings().setAllGesturesEnabled(false);
+        mGoogleMap.getUiSettings().setZoomControlsEnabled(true);
 
         vanityET = (EditText) findViewById(R.id.vanity);
 
