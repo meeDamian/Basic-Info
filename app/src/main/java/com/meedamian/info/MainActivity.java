@@ -12,6 +12,8 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -184,6 +186,27 @@ public class MainActivity extends AppCompatActivity {
     protected void onPause() {
         save();
         super.onPause();
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if(id == R.id.menu_country){
+            Toast.makeText(this, "Country clicked", Toast.LENGTH_SHORT).show();
+        }
+        if(id == R.id.menu_city){
+            Toast.makeText(this, "City clicked", Toast.LENGTH_SHORT).show();
+//            ToDo: Create dialog
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @NeedsPermission(SimChecker.PERMISSION)

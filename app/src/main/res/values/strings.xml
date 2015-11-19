@@ -3,4 +3,7 @@
     <string name="current_url">Current URL: /%s</string>
     <string name="phone_hint">Phone Number</string>
     <string name="cont_desc_copy_button">Copy Button</string>
+
+    <string name="menu_country">Edit Country</string>
+    <string name="menu_city">Edit City</string>
 </resources>
