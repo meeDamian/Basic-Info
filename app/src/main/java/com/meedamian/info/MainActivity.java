@@ -11,10 +11,10 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputLayout;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -52,48 +52,50 @@ public class MainActivity extends AppCompatActivity {
         bd = BasicData.getInstance(this, new BasicData.DataCallback() {
             @Override
             public void onDataReady(String vanity, String phone, String country, String city) {
-                if (vanity != null)
-                    vanityET.setText(vanity);
+            if (vanity != null)
+                vanityET.setText(vanity);
 
-                if (phone != null)
-                    phoneET.setText(phone);
-                
-                String locationQuery = null;
-                if (country != null)
-                    locationQuery = country;
+            if (phone != null)
+                phoneET.setText(phone);
 
-                if (city != null) {
-                    if (locationQuery == null)
-                        locationQuery = city;
-                    else
-                        locationQuery += ", " + city;
+            String locationQuery = null;
+            if (country != null)
+                locationQuery = country;
+
+            if (city != null) {
+                if (locationQuery == null)
+                    locationQuery = city;
+                else
+                    locationQuery += ", " + city;
+            }
+
+            if (locationQuery != null) {
+                try {
+                    Address address = new Geocoder(MainActivity.this).getFromLocationName(locationQuery, 1).get(0);
+                    LatLng position = new LatLng(
+                        address.getLatitude(),
+                        address.getLongitude()
+                    );
+
+                    mGoogleMap.addMarker(new MarkerOptions()
+                        .position(position)
+                        .title(country + ", " + city));
+
+                    mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 11));
+
+                } catch (IOException e) {
+                    e.printStackTrace();
                 }
-
-                if (locationQuery != null) {
-                    try {
-                        Address address = new Geocoder(MainActivity.this).getFromLocationName(locationQuery, 1).get(0);
-                        LatLng position = new LatLng(
-                            address.getLatitude(),
-                            address.getLongitude()
-                        );
-
-                        mGoogleMap.addMarker(new MarkerOptions()
-                            .position(position)
-                            .title(country + ", " + city));
-
-                        mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 11));
-
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
+            }
             }
         });
 
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setPadding(0, getStatusBarHeight(), 0, 0);
-        getSupportActionBar().setDisplayShowTitleEnabled(false);
+        ActionBar ab = getSupportActionBar();
+        if (ab != null)
+            ab.setDisplayShowTitleEnabled(false);
 
         MapFragment mapFragment = (MapFragment) getFragmentManager()
                 .findFragmentById(R.id.map);
@@ -101,16 +103,16 @@ public class MainActivity extends AppCompatActivity {
         mGoogleMap = mapFragment.getMap();
         mGoogleMap.getUiSettings().setAllGesturesEnabled(false);
         mGoogleMap.getUiSettings().setZoomControlsEnabled(true);
+
         phoneET = (EditText) findViewById(R.id.phone);
 
         TextInputLayout vanityWrapper = (TextInputLayout) findViewById(R.id.vanityWrapper);
         vanityWrapper.setHint(String.format(
-                getString(R.string.current_url),
-                bd.getPublicId()
+            getString(R.string.current_url),
+            bd.getPublicId()
         ));
 
         vanityET = (EditText) findViewById(R.id.vanity);
-
         vanityET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, final boolean hasFocus) {
@@ -118,7 +120,7 @@ public class MainActivity extends AppCompatActivity {
             handler.postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    vanityET.setHint(hasFocus ? "Set your vanity" : "");
+                vanityET.setHint(hasFocus ? "Set your vanity" : "");
                 }
             }, 200);
             }
@@ -128,10 +130,10 @@ public class MainActivity extends AppCompatActivity {
         copy.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
-                ClipData cd = ClipData.newPlainText("Basic Data user URL", bd.getPrettyUrl());
-                cm.setPrimaryClip(cd);
-                Toast.makeText(MainActivity.this, "URL copied to clipboard", Toast.LENGTH_LONG).show();
+            ClipboardManager cm = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+            ClipData cd = ClipData.newPlainText("Basic Data user URL", bd.getPrettyUrl());
+            cm.setPrimaryClip(cd);
+            Toast.makeText(MainActivity.this, "URL copied to clipboard", Toast.LENGTH_LONG).show();
             }
         });
 
@@ -148,12 +150,10 @@ public class MainActivity extends AppCompatActivity {
 
     // A method to find height of the status bar
     public int getStatusBarHeight() {
-        int result = 0;
         int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
-        if (resourceId > 0) {
-            result = getResources().getDimensionPixelSize(resourceId);
-        }
-        return result;
+        return (resourceId > 0)
+            ? getResources().getDimensionPixelSize(resourceId)
+            : 0;
     }
 
     @Override
@@ -192,36 +192,39 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
-//   ToDo: Implement function to create AlertDialog
+    private void showEditDialog(final String what) {
+        final EditText input = new EditText(this);
+
+        final String oldValue = bd.getString(what);
+        if (oldValue != null)
+            input.setText(oldValue);
+
+        new AlertDialog.Builder(this)
+            .setTitle(String.format("Change %s name", what))
+            .setView(input)
+            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                String newValue = input.getText().toString().trim();
+                if (!newValue.equals(oldValue))
+                    bd.setReplacer(what, oldValue, newValue);
+                }
+            })
+            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                dialog.cancel();
+                }
+            })
+            .create()
+            .show();
+    }
+
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int id = item.getItemId();
-
-        if(id == R.id.menu_country){
-            AlertDialog.Builder builder = new AlertDialog.Builder(this);
-            builder.setTitle("Change Country name");
-            final EditText input = new EditText(this);
-//            ToDo: Current country name
-            input.setInputType(InputType.TYPE_CLASS_TEXT);
-            builder.setView(input);
-            builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                    input.getText().toString();
-                }
-            });
-            builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener(){
-                @Override
-                public void onClick(DialogInterface dialog, int which) {
-                   dialog.cancel();
-                }
-            });
-
-            builder.show();
-        }
-        if(id == R.id.menu_city){
-            Toast.makeText(this, "City clicked", Toast.LENGTH_SHORT).show();
-//            ToDo: Create dialog
+        switch (item.getItemId()) {
+            case R.id.menu_country: showEditDialog(BasicData.COUNTRY);  break;
+            case R.id.menu_city:    showEditDialog(BasicData.CITY);     break;
         }
 
         return super.onOptionsItemSelected(item);
