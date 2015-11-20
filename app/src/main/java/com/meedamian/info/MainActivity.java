@@ -3,6 +3,7 @@ package com.meedamian.info;
 
 import android.content.ClipData;
 import android.content.ClipboardManager;
+import android.content.DialogInterface;
 import android.location.Address;
 import android.location.Geocoder;
 import android.os.Bundle;
@@ -10,8 +11,10 @@ import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputLayout;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.InputType;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -46,10 +49,6 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-//        getWindow().getDecorView().setSystemUiVisibility(
-//                View.SYSTEM_UI_FLAG_LAYOUT_STABLE
-//                        | View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN);
-
         bd = BasicData.getInstance(this, new BasicData.DataCallback() {
             @Override
             public void onDataReady(String vanity, String phone, String country, String city) {
@@ -58,8 +57,7 @@ public class MainActivity extends AppCompatActivity {
 
                 if (phone != null)
                     phoneET.setText(phone);
-
-
+                
                 String locationQuery = null;
                 if (country != null)
                     locationQuery = country;
@@ -75,13 +73,13 @@ public class MainActivity extends AppCompatActivity {
                     try {
                         Address address = new Geocoder(MainActivity.this).getFromLocationName(locationQuery, 1).get(0);
                         LatLng position = new LatLng(
-                                address.getLatitude(),
-                                address.getLongitude()
+                            address.getLatitude(),
+                            address.getLongitude()
                         );
 
                         mGoogleMap.addMarker(new MarkerOptions()
-                                .position(position)
-                                .title(country + ", " + city));
+                            .position(position)
+                            .title(country + ", " + city));
 
                         mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 11));
 
@@ -194,12 +192,32 @@ public class MainActivity extends AppCompatActivity {
         return true;
     }
 
+//   ToDo: Implement function to create AlertDialog
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         int id = item.getItemId();
 
         if(id == R.id.menu_country){
-            Toast.makeText(this, "Country clicked", Toast.LENGTH_SHORT).show();
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle("Change Country name");
+            final EditText input = new EditText(this);
+//            ToDo: Current country name
+            input.setInputType(InputType.TYPE_CLASS_TEXT);
+            builder.setView(input);
+            builder.setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    input.getText().toString();
+                }
+            });
+            builder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener(){
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                   dialog.cancel();
+                }
+            });
+
+            builder.show();
         }
         if(id == R.id.menu_city){
             Toast.makeText(this, "City clicked", Toast.LENGTH_SHORT).show();

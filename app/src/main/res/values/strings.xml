@@ -6,4 +6,7 @@
 
     <string name="menu_country">Edit Country</string>
     <string name="menu_city">Edit City</string>
+
+    <string name="ok">ok</string>
+    <string name="cancel">cancel</string>
 </resources>
