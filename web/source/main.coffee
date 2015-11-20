@@ -66,6 +66,7 @@ class Patch
           _vals[Patch.PHONE_UPDATED] = undefined
           delete _vals[Patch.PHONE_UPDATED]
 
+        # NOTE: Location updates date only if both city and country change
         when Patch.CITY, Patch.COUNTRY
           _vals[Patch.LOCATION_UPDATED] = undefined
           delete _vals[Patch.LOCATION_UPDATED]
