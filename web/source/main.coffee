@@ -121,7 +121,6 @@ makeHash = (string) ->
     .substring 0, 8
 
 checkVanity = (vanity, cb) ->
-
   if null is vanity.match /^[\w]{1}[\w-_.]*$/
     return cb 'vanity invalid'
 

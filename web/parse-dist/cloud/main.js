@@ -165,6 +165,9 @@ makeHash = function(string) {
 
 checkVanity = function(vanity, cb) {
   var hashQuery, vanityLower, vanityQuery;
+  if (null === vanity.match(/^[\w]{1}[\w-_.]*$/)) {
+    return cb('vanity invalid');
+  }
   vanityLower = vanity.toLowerCase();
   hashQuery = new Parse.Query('Latest');
   hashQuery.equalTo(Patch.HASH, vanityLower);
