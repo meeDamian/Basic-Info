@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.percent.PercentRelativeLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<android.support.percent.PercentRelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:clipChildren="false"
@@ -11,46 +10,49 @@
 
     <fragment
         android:id="@+id/map"
+        android:name="com.google.android.gms.maps.MapFragment"
         android:layout_width="match_parent"
-        app:layout_heightPercent="50%"
         android:layout_marginBottom="10dp"
-        android:name="com.google.android.gms.maps.MapFragment"/>
+        android:fitsSystemWindows="true"
+        app:layout_heightPercent="50%" />
 
     <android.support.v7.widget.Toolbar
+        android:id="@+id/toolbar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:id="@+id/toolbar"
-        android:background="@android:color/transparent">
-    </android.support.v7.widget.Toolbar>
+        android:background="@android:color/transparent"
+        android:minHeight="?attr/actionBarSize"/>
 
     <android.support.design.widget.TextInputLayout
         android:id="@+id/phoneWrapper"
-        android:layout_below="@id/map"
-        android:layout_marginRight="16dp"
-        android:layout_marginLeft="16dp"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        android:layout_below="@id/map"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp">
 
-        <EditText android:id="@+id/phone"
-                  android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:inputType="phone"
-                  android:hint="@string/phone_hint" />
+        <EditText
+            android:id="@+id/phone"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/phone_hint"
+            android:inputType="phone" />
 
     </android.support.design.widget.TextInputLayout>
 
 
-    <ImageButton android:id="@+id/copy"
-                 android:layout_width="40dp"
-                 android:layout_height="wrap_content"
+    <ImageButton
+        android:id="@+id/copy"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="40dp"
 
-                 android:layout_marginEnd="16dp"
-                 android:layout_alignParentEnd="true"
-                 android:layout_centerVertical="true"
-                 android:layout_below="@id/phoneWrapper"
-                 android:src="@drawable/copy_24dp"
-                 android:contentDescription="@string/cont_desc_copy_button"
-                 style="?android:attr/borderlessButtonStyle" />
+        android:layout_height="wrap_content"
+        android:layout_alignParentEnd="true"
+        android:layout_below="@id/phoneWrapper"
+        android:layout_centerVertical="true"
+        android:layout_marginEnd="16dp"
+        android:contentDescription="@string/cont_desc_copy_button"
+        android:src="@drawable/copy_24dp" />
 
     <android.support.design.widget.TextInputLayout
         android:id="@+id/vanityWrapper"
@@ -60,23 +62,23 @@
         android:layout_marginStart="16dp"
         android:layout_toStartOf="@id/copy">
 
-        <EditText android:id="@+id/vanity"
-                  android:layout_width="match_parent"
-                  android:layout_height="wrap_content"
-                  android:inputType="text"
-                  android:hint="@string/current_url" />
+        <EditText
+            android:id="@+id/vanity"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:hint="@string/current_url"
+            android:inputType="text" />
 
     </android.support.design.widget.TextInputLayout>
 
     <android.support.design.widget.FloatingActionButton
         android:id="@+id/save"
-        android:layout_alignParentEnd="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginEnd="16dp"
-        android:layout_marginBottom="16dp"
-
-        android:src="@drawable/ic_save_white_24dp"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:layout_alignParentBottom="true"
+        android:layout_alignParentEnd="true"
+        android:layout_marginBottom="16dp"
+        android:layout_marginEnd="16dp"
+        android:src="@drawable/ic_save_white_24dp" />
 
 </android.support.percent.PercentRelativeLayout>
