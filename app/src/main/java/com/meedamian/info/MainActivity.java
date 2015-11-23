@@ -194,20 +194,19 @@ public class MainActivity extends AppCompatActivity {
 
     private void showEditDialog(final String what) {
         final EditText input = new EditText(this);
-
         final String oldValue = bd.getString(what);
         if (oldValue != null)
             input.setText(oldValue);
 
         new AlertDialog.Builder(this)
             .setTitle(String.format("Change %s name", what))
-            .setView(input)
+            .setView(input, 60, 20, 60, 0)
             .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                String newValue = input.getText().toString().trim();
-                if (!newValue.equals(oldValue))
-                    bd.setReplacer(what, oldValue, newValue);
+                    String newValue = input.getText().toString().trim();
+                    if (!newValue.equals(oldValue))
+                        bd.setReplacer(what, oldValue, newValue);
                 }
             })
             .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
