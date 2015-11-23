@@ -15,6 +15,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -200,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
 
         new AlertDialog.Builder(this)
             .setTitle(String.format("Change %s name", what))
-            .setView(input, 60, 20, 60, 0)
+            .setView(input, convertToDp(20), convertToDp(5), convertToDp(25), 0)
             .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
@@ -217,6 +218,10 @@ public class MainActivity extends AppCompatActivity {
             })
             .create()
             .show();
+    }
+
+    public int convertToDp(int value){
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, getResources().getDisplayMetrics());
     }
 
     @Override
