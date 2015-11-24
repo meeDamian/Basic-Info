@@ -15,6 +15,7 @@ import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.util.TypedValue;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -194,20 +195,19 @@ public class MainActivity extends AppCompatActivity {
 
     private void showEditDialog(final String what) {
         final EditText input = new EditText(this);
-
         final String oldValue = bd.getString(what);
         if (oldValue != null)
             input.setText(oldValue);
 
         new AlertDialog.Builder(this)
             .setTitle(String.format("Change %s name", what))
-            .setView(input)
+            .setView(input, convertToDp(20), convertToDp(5), convertToDp(25), 0)
             .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                String newValue = input.getText().toString().trim();
-                if (!newValue.equals(oldValue))
-                    bd.setReplacer(what, oldValue, newValue);
+                    String newValue = input.getText().toString().trim();
+                    if (!newValue.equals(oldValue))
+                        bd.setReplacer(what, oldValue, newValue);
                 }
             })
             .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -218,6 +218,10 @@ public class MainActivity extends AppCompatActivity {
             })
             .create()
             .show();
+    }
+
+    public int convertToDp(int value){
+        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, getResources().getDisplayMetrics());
     }
 
     @Override
