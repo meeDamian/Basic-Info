@@ -90,11 +90,10 @@ public class SimChecker {
 
         NotificationCompat.Builder mBuilder =
             new NotificationCompat.Builder(c)
-                .setSmallIcon(android.R.drawable.ic_secure)
+                .setSmallIcon(R.drawable.ic_sim_card_black_24dp)
                 .setContentTitle("SIM card changed")
-                .setContentText("Your current phone number is " + phoneNo)
-                .addAction(android.R.drawable.ic_menu_save, "Correct", null)
-                .addAction(android.R.drawable.ic_secure, "Change", getAppPendingIntent(c))
+                .setContentText(String.format("Is %s your current phone number?", phoneNo))
+                .addAction(R.drawable.ic_edit_black_24dp, "Change", getAppPendingIntent(c))
                 .setAutoCancel(true)
                 .setVisibility(NotificationCompat.VISIBILITY_SECRET)
                 .setPriority(NotificationCompat.PRIORITY_LOW)
@@ -109,12 +108,11 @@ public class SimChecker {
             new NotificationCompat.Builder(c)
                 .setAutoCancel(true)
                 .setCategory(NotificationCompat.CATEGORY_ERROR)
-                .setSmallIcon(android.R.drawable.ic_secure)
+                .setSmallIcon(R.drawable.ic_sim_card_black_24dp)
                 .setContentTitle("Permission missing")
                 .setContentText("Phone number change notifications disabled")
-                .addAction(android.R.drawable.ic_secure, "Enable", getAppPendingIntent(c))
-                .addAction(android.R.drawable.ic_secure, "Ignore", null)
-                .setContentIntent(getSettingsPendingIntent(c));
+                .addAction(R.drawable.ic_lightbulb_outline_24dp, "Grant", getSettingsPendingIntent(c))
+                .setContentIntent(getAppPendingIntent(c));
 
         getNotificationManager(c).notify(PERMISSION_MISSING_NOTIFICATION_ID, mBuilder.build());
     }
