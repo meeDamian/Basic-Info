@@ -4,8 +4,6 @@ package com.meedamian.info;
 import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.DialogInterface;
-import android.location.Address;
-import android.location.Geocoder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
@@ -24,13 +22,8 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.example.julian.locationservice.GeoChecker;
-import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
-
-import java.io.IOException;
 
 import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.RuntimePermissions;
@@ -59,35 +52,8 @@ public class MainActivity extends AppCompatActivity {
             if (phone != null)
                 phoneET.setText(phone);
 
-            String locationQuery = null;
-            if (country != null)
-                locationQuery = country;
-
-            if (city != null) {
-                if (locationQuery == null)
-                    locationQuery = city;
-                else
-                    locationQuery += ", " + city;
-            }
-
-            if (locationQuery != null) {
-                try {
-                    Address address = new Geocoder(MainActivity.this).getFromLocationName(locationQuery, 1).get(0);
-                    LatLng position = new LatLng(
-                        address.getLatitude(),
-                        address.getLongitude()
-                    );
-
-                    mGoogleMap.addMarker(new MarkerOptions()
-                        .position(position)
-                        .title(country + ", " + city));
-
-                    mGoogleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 11));
-
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
+            GeoChecker geoChecker = new GeoChecker(getApplication());
+            geoChecker.locationQuery(country, city, mGoogleMap);
             }
         });
 

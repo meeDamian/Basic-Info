@@ -13,6 +13,10 @@ import android.util.Log;
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
+import com.google.android.gms.maps.CameraUpdateFactory;
+import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.model.LatLng;
+import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.io.IOException;
 import java.util.List;
@@ -74,6 +78,38 @@ public class GeoChecker implements
     public void onConnectionSuspended(int i) {
         Log.d("Basic Info", "suspended");
 
+    }
+
+    public void locationQuery(String country, String city, GoogleMap googleMap){
+        String locationQuery = null;
+        if (country != null)
+            locationQuery = country;
+
+        if (city != null) {
+            if (locationQuery == null)
+                locationQuery = city;
+            else
+                locationQuery += ", " + city;
+        }
+
+        if (locationQuery != null) {
+            try {
+                Address address = new Geocoder(c).getFromLocationName(locationQuery, 1).get(0);
+                LatLng position = new LatLng(
+                        address.getLatitude(),
+                        address.getLongitude()
+                );
+
+                googleMap.addMarker(new MarkerOptions()
+                        .position(position)
+                        .title(country + ", " + city));
+
+                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 11));
+
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
     }
 
     @Override
