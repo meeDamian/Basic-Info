@@ -9,4 +9,7 @@
 
     <string name="ok">ok</string>
     <string name="cancel">cancel</string>
+
+    <string name="location_permission_title">Permission missing</string>
+    <string name="location_permission_content_text">No location permission granted.</string>
 </resources>

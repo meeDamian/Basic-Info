@@ -17,6 +17,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.meedamian.info.R;
 
 import java.io.IOException;
 import java.util.List;
@@ -135,8 +136,8 @@ public class GeoChecker implements
             new NotificationCompat.Builder(c)
                 .setAutoCancel(true)
                 .setSmallIcon(android.R.drawable.ic_secure)
-                .setContentTitle("")
-                .setContentText("")
+                .setContentTitle(c.getString(R.string.location_permission_title))
+                .setContentText(c.getString(R.string.location_permission_content_text))
                 .setContentIntent(null);
 
         getNotificationManager(c).notify(MISSING_PERMISSION, mBuilder.build());
