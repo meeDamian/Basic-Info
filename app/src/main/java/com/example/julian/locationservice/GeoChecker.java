@@ -15,6 +15,7 @@ import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
+import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.meedamian.info.R;
@@ -41,11 +42,20 @@ public class GeoChecker implements
         la = locationer;
         c = context;
 
-        buildGoogleApiClient(c).connect();
-
-        if (!PermissionUtils.hasSelfPermissions(c, PERMISSION)) showPermissionNotification(c);
-        else cancelPermissionNotification(c);
+        if (!PermissionUtils.hasSelfPermissions(c, PERMISSION)) {
+            showPermissionNotification(c);
+        } else {
+            howToNameThisMethod();
+            cancelPermissionNotification(c);
+        }
     }
+    public GeoChecker(Context c) { this(c,null); }
+
+    public void howToNameThisMethod() {
+        // TODO: prevent calling twice
+        buildGoogleApiClient(c).connect();
+    }
+
 
     @Override
     public void onConnected(Bundle bundle) {
@@ -73,7 +83,6 @@ public class GeoChecker implements
                 );
         }
     }
-    public GeoChecker(Context c) { this(c,null); }
 
     @Override
     public void onConnectionSuspended(int i) {
@@ -81,7 +90,11 @@ public class GeoChecker implements
 
     }
 
-    public void locationQuery(String country, String city, GoogleMap googleMap){
+    public void locationQuery(String country, String city, MapFragment mapFragment){
+        GoogleMap googleMap = mapFragment.getMap();
+        googleMap.getUiSettings().setAllGesturesEnabled(false);
+        googleMap.getUiSettings().setZoomControlsEnabled(true);
+
         String locationQuery = null;
         if (country != null)
             locationQuery = country;

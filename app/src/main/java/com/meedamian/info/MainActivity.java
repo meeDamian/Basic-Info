@@ -22,7 +22,6 @@ import android.widget.ImageButton;
 import android.widget.Toast;
 
 import com.example.julian.locationservice.GeoChecker;
-import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 
 import permissions.dispatcher.NeedsPermission;
@@ -33,16 +32,22 @@ public class MainActivity extends AppCompatActivity {
 
     private EditText phoneET;
     private EditText vanityET;
-
-    GoogleMap mGoogleMap;
+    private MapFragment mapFragment;
 
     private BasicData bd;
+    private GeoChecker gc;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
+        phoneET = (EditText) findViewById(R.id.phone);
+        vanityET = (EditText) findViewById(R.id.vanity);
+        mapFragment = (MapFragment) getFragmentManager()
+            .findFragmentById(R.id.map);
+
+        gc = new GeoChecker(this);
         bd = BasicData.getInstance(this, new BasicData.DataCallback() {
             @Override
             public void onDataReady(String vanity, String phone, String country, String city) {
@@ -52,8 +57,7 @@ public class MainActivity extends AppCompatActivity {
             if (phone != null)
                 phoneET.setText(phone);
 
-            GeoChecker geoChecker = new GeoChecker(getApplication());
-            geoChecker.locationQuery(country, city, mGoogleMap);
+            gc.locationQuery(country, city, mapFragment);
             }
         });
 
@@ -64,22 +68,12 @@ public class MainActivity extends AppCompatActivity {
         if (ab != null)
             ab.setDisplayShowTitleEnabled(false);
 
-        MapFragment mapFragment = (MapFragment) getFragmentManager()
-                .findFragmentById(R.id.map);
-
-        mGoogleMap = mapFragment.getMap();
-        mGoogleMap.getUiSettings().setAllGesturesEnabled(false);
-        mGoogleMap.getUiSettings().setZoomControlsEnabled(true);
-
-        phoneET = (EditText) findViewById(R.id.phone);
-
         TextInputLayout vanityWrapper = (TextInputLayout) findViewById(R.id.vanityWrapper);
         vanityWrapper.setHint(String.format(
             getString(R.string.current_url),
             bd.getPublicId()
         ));
 
-        vanityET = (EditText) findViewById(R.id.vanity);
         vanityET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, final boolean hasFocus) {
@@ -171,9 +165,9 @@ public class MainActivity extends AppCompatActivity {
             .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
-                    String newValue = input.getText().toString().trim();
-                    if (!newValue.equals(oldValue))
-                        bd.setReplacer(what, oldValue, newValue);
+                String newValue = input.getText().toString().trim();
+                if (!newValue.equals(oldValue))
+                    bd.setReplacer(what, oldValue, newValue);
                 }
             })
             .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
@@ -207,6 +201,6 @@ public class MainActivity extends AppCompatActivity {
 
     @NeedsPermission(GeoChecker.PERMISSION)
     protected void initGeo() {
-        new GeoChecker(this);
+        gc.howToNameThisMethod();
     }
 }

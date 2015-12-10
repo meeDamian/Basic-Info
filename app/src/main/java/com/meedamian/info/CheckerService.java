@@ -22,9 +22,6 @@ public class CheckerService extends Service {
         new GeoChecker(this, new GeoChecker.LocationAvailabler() {
             @Override
             public void onLocationAvailable(String country, String city) {
-
-            // TODO: check for user-set replaces
-
             save(country, city);
             }
         });
@@ -38,5 +35,4 @@ public class CheckerService extends Service {
             .save()
             .upload();
     }
-
 }
