@@ -52,10 +52,8 @@ public class GeoChecker implements
     public GeoChecker(Context c) { this(c,null); }
 
     public void howToNameThisMethod() {
-        // TODO: prevent calling twice
         buildGoogleApiClient(c).connect();
     }
-
 
     @Override
     public void onConnected(Bundle bundle) {
@@ -133,6 +131,9 @@ public class GeoChecker implements
     }
 
     protected synchronized GoogleApiClient buildGoogleApiClient(Context c) {
+        if (mGoogleApiClient != null)
+            return mGoogleApiClient;
+
         return mGoogleApiClient = new GoogleApiClient.Builder(c)
             .addConnectionCallbacks(this)
             .addOnConnectionFailedListener(this)
