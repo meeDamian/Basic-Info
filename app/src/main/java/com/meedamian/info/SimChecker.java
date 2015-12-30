@@ -25,23 +25,23 @@ public class SimChecker extends PermChecker {
             return;
 
         // That's the first read - just save
-        String cachedSubscriber = getCachedSubscriberId(c);
+        String cachedSubscriber = getCachedSubscriberId();
         if (cachedSubscriber == null) {
-            cacheNewSubscriber(c, currentSubscriber);
+            cacheNewSubscriber(currentSubscriber);
             return;
         }
 
         // SIM changed - notify
         if (!cachedSubscriber.equals(currentSubscriber)) {
-            cacheNewSubscriber(c, currentSubscriber);
+            cacheNewSubscriber(currentSubscriber);
             showSimChangedNotification(c);
         }
     }
 
-    private String getCachedSubscriberId(Context c) {
+    private String getCachedSubscriberId() {
         return bd.getString(BasicData.SUBSCRIBER_ID);
     }
-    private void cacheNewSubscriber(Context c, String newSubscriberId) {
+    private void cacheNewSubscriber(String newSubscriberId) {
         bd.cacheString(BasicData.SUBSCRIBER_ID, newSubscriberId);
     }
 
