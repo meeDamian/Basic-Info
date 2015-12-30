@@ -105,7 +105,7 @@ public class GeoChecker extends PermChecker implements
 
                         googleMap.addMarker(new MarkerOptions()
                             .position(position)
-                            .title(country + ", " + city));
+                            .title(locationQuery));
 
                         googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 11));
 
