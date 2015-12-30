@@ -17,7 +17,7 @@ public class CheckerService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
 
-        new SimChecker(getApplicationContext());
+        new SimChecker(this);
 
         new GeoChecker(this, new GeoChecker.LocationAvailabler() {
             @Override

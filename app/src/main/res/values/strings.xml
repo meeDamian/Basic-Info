@@ -7,9 +7,8 @@
     <string name="menu_country">Edit Country</string>
     <string name="menu_city">Edit City</string>
 
-    <string name="ok">ok</string>
-    <string name="cancel">cancel</string>
-
-    <string name="location_permission_title">Permission missing</string>
+    <string name="permission_missing">Permission missing</string>
+    <string name="permission_action_text">Grant</string>
     <string name="location_permission_content_text">No location permission granted.</string>
+    <string name="phone_permission_content_text">Phone number change notifications disabled</string>
 </resources>

@@ -215,13 +215,16 @@ public class BasicData {
             .setCallback(new FutureCallback<JsonObject>() {
                 @Override
                 public void onCompleted(Exception e, JsonObject result) {
-                JsonObject loc = result.get(LOCATION).getAsJsonObject();
+                JsonElement locRaw = result.get(LOCATION);
+                if (locRaw != null) {
+                    JsonObject loc = locRaw.getAsJsonObject();
 
-                vanity = getStringFromJson(result, VANITY);
-                phone = getStringFromJson(result, PHONE);
-                country = getStringFromJson(loc, COUNTRY);
-                city = getStringFromJson(loc, CITY);
+                    vanity = getStringFromJson(result, VANITY);
+                    phone = getStringFromJson(result, PHONE);
+                    country = getStringFromJson(loc, COUNTRY);
+                    city = getStringFromJson(loc, CITY);
 
+                }
                 cleanTheDirt();
 
                 dc.onDataReady(vanity, phone, country, city);

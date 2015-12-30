@@ -1,14 +1,11 @@
 package com.example.julian.locationservice;
 
 import android.Manifest;
-import android.app.NotificationManager;
 import android.content.Context;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
-import android.support.v4.app.NotificationCompat;
-import android.util.Log;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -18,20 +15,17 @@ import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.meedamian.info.PermChecker;
 import com.meedamian.info.R;
 
 import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
-import permissions.dispatcher.PermissionUtils;
-
-public class GeoChecker implements
+public class GeoChecker extends PermChecker implements
     GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     public static final String PERMISSION = Manifest.permission.ACCESS_COARSE_LOCATION;
-
-    private static final int MISSING_PERMISSION = 1;
 
     private GoogleApiClient mGoogleApiClient;
     private LocationAvailabler la;
@@ -42,16 +36,12 @@ public class GeoChecker implements
         la = locationer;
         c = context;
 
-        if (!PermissionUtils.hasSelfPermissions(c, PERMISSION)) {
-            showPermissionNotification(c);
-        } else {
-            howToNameThisMethod();
-            cancelPermissionNotification(c);
-        }
+        if (locationer != null && isPermitted(c))
+            init();
     }
-    public GeoChecker(Context c) { this(c,null); }
+    public GeoChecker(Context c) { this(c, null); }
 
-    public void howToNameThisMethod() {
+    public void init() {
         buildGoogleApiClient(c).connect();
     }
 
@@ -82,11 +72,9 @@ public class GeoChecker implements
         }
     }
 
-    @Override
-    public void onConnectionSuspended(int i) {
-        Log.d("Basic Info", "suspended");
+    @Override public void onConnectionSuspended(int i) {}
+    @Override public void onConnectionFailed(ConnectionResult connectionResult) {}
 
-    }
 
     public void locationQuery(String country, String city, MapFragment mapFragment){
         GoogleMap googleMap = mapFragment.getMap();
@@ -124,12 +112,6 @@ public class GeoChecker implements
         }
     }
 
-    @Override
-    public void onConnectionFailed(ConnectionResult connectionResult) {
-        Log.d("Basic Info", "failed");
-
-    }
-
     protected synchronized GoogleApiClient buildGoogleApiClient(Context c) {
         if (mGoogleApiClient != null)
             return mGoogleApiClient;
@@ -142,23 +124,27 @@ public class GeoChecker implements
     }
 
 
-    private NotificationManager getNotificationManager(Context c) {
-        return (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
-    }
-    private void showPermissionNotification(Context c) {
-        NotificationCompat.Builder mBuilder =
-            new NotificationCompat.Builder(c)
-                .setAutoCancel(true)
-                .setSmallIcon(android.R.drawable.ic_secure)
-                .setContentTitle(c.getString(R.string.location_permission_title))
-                .setContentText(c.getString(R.string.location_permission_content_text))
-                .setContentIntent(null);
 
-        getNotificationManager(c).notify(MISSING_PERMISSION, mBuilder.build());
+    @Override
+    protected int getNotificationId() {
+        return MISSING_LOCATION_PERM;
     }
-    private void cancelPermissionNotification(Context c) {
-        getNotificationManager(c).cancel(MISSING_PERMISSION);
+
+    @Override
+    protected String getPermission() {
+        return PERMISSION;
     }
+
+    @Override
+    protected int getSmallIcon() {
+        return android.R.drawable.ic_secure;
+    }
+
+    @Override
+    protected int getText() {
+        return R.string.location_permission_content_text;
+    }
+
 
     public interface LocationAvailabler {
         void onLocationAvailable(String country, String city);

@@ -7,7 +7,6 @@ import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.annotation.NonNull;
-import android.support.design.widget.FloatingActionButton;
 import android.support.design.widget.TextInputLayout;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AlertDialog;
@@ -47,6 +46,14 @@ public class MainActivity extends AppCompatActivity {
         mapFragment = (MapFragment) getFragmentManager()
             .findFragmentById(R.id.map);
 
+        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
+        toolbar.setPadding(0, getStatusBarHeight(), 0, 0);
+        ActionBar ab = getSupportActionBar();
+        if (ab != null)
+            ab.setDisplayShowTitleEnabled(false);
+
+
         gc = new GeoChecker(this);
         bd = BasicData.getInstance(this, new BasicData.DataCallback() {
             @Override
@@ -61,13 +68,19 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
-        setSupportActionBar(toolbar);
-        toolbar.setPadding(0, getStatusBarHeight(), 0, 0);
-        ActionBar ab = getSupportActionBar();
-        if (ab != null)
-            ab.setDisplayShowTitleEnabled(false);
+        setupVanityStuff();
 
+        findViewById(R.id.save).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                save();
+            }
+        });
+
+        initCheckers();
+    }
+
+    private void setupVanityStuff() {
         TextInputLayout vanityWrapper = (TextInputLayout) findViewById(R.id.vanityWrapper);
         vanityWrapper.setHint(String.format(
             getString(R.string.current_url),
@@ -77,8 +90,7 @@ public class MainActivity extends AppCompatActivity {
         vanityET.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, final boolean hasFocus) {
-            final Handler handler = new Handler();
-            handler.postDelayed(new Runnable() {
+            new Handler().postDelayed(new Runnable() {
                 @Override
                 public void run() {
                 vanityET.setHint(hasFocus ? "Set your vanity" : "");
@@ -97,16 +109,6 @@ public class MainActivity extends AppCompatActivity {
             Toast.makeText(MainActivity.this, "URL copied to clipboard", Toast.LENGTH_LONG).show();
             }
         });
-
-        FloatingActionButton fab = (FloatingActionButton) findViewById(R.id.save);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                save();
-            }
-        });
-
-        init();
     }
 
     // A method to find height of the status bar
@@ -123,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
         MainActivityPermissionsDispatcher.onRequestPermissionsResult(this, requestCode, grantResults);
     }
 
-    private void init() {
+    private void initCheckers() {
         Receiver.setAlarm(this);
         MainActivityPermissionsDispatcher.initSimWithCheck(this);
         MainActivityPermissionsDispatcher.initGeoWithCheck(this);
@@ -161,8 +163,8 @@ public class MainActivity extends AppCompatActivity {
 
         new AlertDialog.Builder(this)
             .setTitle(String.format("Change %s name", what))
-            .setView(input, convertToDp(20), convertToDp(5), convertToDp(25), 0)
-            .setPositiveButton(R.string.ok, new DialogInterface.OnClickListener() {
+            .setView(input, px2dp(20), px2dp(5), px2dp(25), 0)
+            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                 String newValue = input.getText().toString().trim();
@@ -170,7 +172,7 @@ public class MainActivity extends AppCompatActivity {
                     bd.setReplacer(what, oldValue, newValue);
                 }
             })
-            .setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+            .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
                 @Override
                 public void onClick(DialogInterface dialog, int which) {
                 dialog.cancel();
@@ -180,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
             .show();
     }
 
-    public int convertToDp(int value){
+    public int px2dp(int value){
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, getResources().getDisplayMetrics());
     }
 
@@ -201,6 +203,6 @@ public class MainActivity extends AppCompatActivity {
 
     @NeedsPermission(GeoChecker.PERMISSION)
     protected void initGeo() {
-        gc.howToNameThisMethod();
+        gc.init();
     }
 }
