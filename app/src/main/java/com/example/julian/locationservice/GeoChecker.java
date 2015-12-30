@@ -13,6 +13,7 @@ import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.MapFragment;
+import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 import com.meedamian.info.PermChecker;
@@ -76,40 +77,44 @@ public class GeoChecker extends PermChecker implements
     @Override public void onConnectionFailed(ConnectionResult connectionResult) {}
 
 
-    public void locationQuery(String country, String city, MapFragment mapFragment){
-        GoogleMap googleMap = mapFragment.getMap();
-        googleMap.getUiSettings().setAllGesturesEnabled(false);
-        googleMap.getUiSettings().setZoomControlsEnabled(true);
+    public void locationQuery(final String country, final String city, MapFragment mapFragment) {
+        mapFragment.getMapAsync(new OnMapReadyCallback() {
+            @Override
+            public void onMapReady(GoogleMap googleMap) {
+                googleMap.getUiSettings().setAllGesturesEnabled(false);
+                googleMap.getUiSettings().setZoomControlsEnabled(true);
 
-        String locationQuery = null;
-        if (country != null)
-            locationQuery = country;
+                String locationQuery = null;
+                if (country != null)
+                    locationQuery = country;
 
-        if (city != null) {
-            if (locationQuery == null)
-                locationQuery = city;
-            else
-                locationQuery += ", " + city;
-        }
+                if (city != null) {
+                    if (locationQuery == null)
+                        locationQuery = city;
+                    else
+                        locationQuery += ", " + city;
+                }
 
-        if (locationQuery != null) {
-            try {
-                Address address = new Geocoder(c).getFromLocationName(locationQuery, 1).get(0);
-                LatLng position = new LatLng(
-                        address.getLatitude(),
-                        address.getLongitude()
-                );
+                if (locationQuery != null) {
+                    try {
+                        Address address = new Geocoder(c).getFromLocationName(locationQuery, 1).get(0);
+                        LatLng position = new LatLng(
+                            address.getLatitude(),
+                            address.getLongitude()
+                        );
 
-                googleMap.addMarker(new MarkerOptions()
-                        .position(position)
-                        .title(country + ", " + city));
+                        googleMap.addMarker(new MarkerOptions()
+                            .position(position)
+                            .title(country + ", " + city));
 
-                googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 11));
+                        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 11));
 
-            } catch (IOException e) {
-                e.printStackTrace();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
             }
-        }
+        });
     }
 
     protected synchronized GoogleApiClient buildGoogleApiClient(Context c) {
