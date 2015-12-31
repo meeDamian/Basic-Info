@@ -30,9 +30,7 @@ public class CheckerService extends Service {
     }
 
     private void save(String country, String city) {
-        BasicData.getInstance(this)
-            .setLocation(country, city)
-            .save()
-            .upload();
+        LocalData.getInstance(this)
+            .save(null, null, country, city);
     }
 }

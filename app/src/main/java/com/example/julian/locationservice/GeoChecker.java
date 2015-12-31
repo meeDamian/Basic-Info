@@ -6,16 +6,12 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.GoogleMap;
-import com.google.android.gms.maps.MapFragment;
-import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 import com.meedamian.info.PermChecker;
 import com.meedamian.info.R;
 
@@ -76,45 +72,31 @@ public class GeoChecker extends PermChecker implements
     @Override public void onConnectionSuspended(int i) {}
     @Override public void onConnectionFailed(ConnectionResult connectionResult) {}
 
+    public static String getLocationQuery(@Nullable String country, @Nullable String city) {
+        if (country == null)
+            return city;
 
-    public void locationQuery(final String country, final String city, MapFragment mapFragment) {
-        mapFragment.getMapAsync(new OnMapReadyCallback() {
-            @Override
-            public void onMapReady(GoogleMap googleMap) {
-                googleMap.getUiSettings().setAllGesturesEnabled(false);
-                googleMap.getUiSettings().setZoomControlsEnabled(true);
+        if (city == null)
+            return null;
 
-                String locationQuery = null;
-                if (country != null)
-                    locationQuery = country;
+        return country + ", " + city;
+    }
 
-                if (city != null) {
-                    if (locationQuery == null)
-                        locationQuery = city;
-                    else
-                        locationQuery += ", " + city;
-                }
+    public LatLng getCoords(@Nullable String country, @Nullable String city) {
+        String locationQuery = getLocationQuery(country, city);
+        if (locationQuery == null)
+            return null;
 
-                if (locationQuery != null) {
-                    try {
-                        Address address = new Geocoder(c).getFromLocationName(locationQuery, 1).get(0);
-                        LatLng position = new LatLng(
-                            address.getLatitude(),
-                            address.getLongitude()
-                        );
+        try {
+            Address address = new Geocoder(c).getFromLocationName(locationQuery, 1).get(0);
+            return new LatLng(
+                address.getLatitude(),
+                address.getLongitude()
+            );
 
-                        googleMap.addMarker(new MarkerOptions()
-                            .position(position)
-                            .title(locationQuery));
-
-                        googleMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 11));
-
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                }
-            }
-        });
+        } catch(IOException e) {
+            return null;
+        }
     }
 
     protected synchronized GoogleApiClient buildGoogleApiClient(Context c) {
@@ -127,7 +109,6 @@ public class GeoChecker extends PermChecker implements
             .addApi(LocationServices.API)
             .build();
     }
-
 
 
     @Override
