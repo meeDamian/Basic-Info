@@ -50,6 +50,48 @@ public class StateData extends BaseObservable {
     }
 
 
+    // (Two-way) Data-Binding of COUNTRY
+    private String country;
+    @Bindable
+    public String getCountry() {
+        return country;
+    }
+    private void setCountryAtomic(String country) {
+        this.country = country;
+    }
+    public void setCountry(String country) {
+        setCountryAtomic(country);
+        notifyPropertyChanged(BR.country);
+    }
+    public TextWatcher onCountryChanged = new SimpleTextWatcher() {
+        @Override
+        public void onTextChanged(String newCountry) {
+        setCountryAtomic(newCountry);
+        }
+    };
+
+
+    // (Two-way) Data-Binding of CITY
+    private String city;
+    @Bindable
+    public String getCity() {
+        return city;
+    }
+    private void setCityAtomic(String city) {
+        this.city = city;
+    }
+    public void setCity(String city) {
+        setCityAtomic(city);
+        notifyPropertyChanged(BR.city);
+    }
+    public TextWatcher onCityChanged = new SimpleTextWatcher() {
+        @Override
+        public void onTextChanged(String newCity) {
+        setCityAtomic(newCity);
+        }
+    };
+
+
     // (Two-way) Data-Binding of PHONE
     private String phone;
     @Bindable
@@ -109,50 +151,6 @@ public class StateData extends BaseObservable {
     }
 
 
-
-    // (Two-way) Data-Binding of COUNTRY
-    private String country;
-    @Bindable
-    public String getCountry() {
-        return country;
-    }
-    private void setCountryAtomic(String country) {
-        this.country = country;
-    }
-    public void setCountry(String country) {
-        setCountryAtomic(country);
-        notifyPropertyChanged(BR.country);
-    }
-    public TextWatcher onCountryChanged = new SimpleTextWatcher() {
-        @Override
-        public void onTextChanged(String newCountry) {
-            setCountryAtomic(newCountry);
-        }
-    };
-
-
-
-    // (Two-way) Data-Binding of CITY
-    private String city;
-    @Bindable
-    public String getCity() {
-        return city;
-    }
-    private void setCityAtomic(String city) {
-        this.city = city;
-    }
-    public void setCity(String city) {
-        setCityAtomic(city);
-        notifyPropertyChanged(BR.city);
-    }
-    public TextWatcher onCityChanged = new SimpleTextWatcher() {
-        @Override
-        public void onTextChanged(String newCity) {
-            setCityAtomic(newCity);
-        }
-    };
-
-
     public void initGeo() {
         gc.init();
     }
@@ -174,6 +172,6 @@ public class StateData extends BaseObservable {
     }
 
     public void save(@Nullable View v) {
-        ld.save(getVanity(), getPhone(), getCountry(), getCity());
+        ld.saveUserEdits(getVanity(), getPhone(), getCountry(), getCity());
     }
 }

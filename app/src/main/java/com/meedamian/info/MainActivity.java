@@ -7,9 +7,6 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
-import android.view.Menu;
-import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.example.julian.locationservice.GeoChecker;
 import com.google.android.gms.maps.GoogleMap;
@@ -84,22 +81,22 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
     }
 
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        switch (item.getItemId()) {
-            case R.id.settings:
-                Toast.makeText(this, "TODO: Open Settings...", Toast.LENGTH_LONG).show();
-                break;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
+//    @Override
+//    public boolean onCreateOptionsMenu(Menu menu) {
+//        getMenuInflater().inflate(R.menu.menu_main, menu);
+//        return true;
+//    }
+//
+//    @Override
+//    public boolean onOptionsItemSelected(MenuItem item) {
+//        switch (item.getItemId()) {
+//            case R.id.settings:
+//                Toast.makeText(this, "TODO: Open Settings...", Toast.LENGTH_LONG).show();
+//                break;
+//        }
+//
+//        return super.onOptionsItemSelected(item);
+//    }
 
 //    private void showEditDialog(final String what) {
 //        final EditText input = new EditText(this);

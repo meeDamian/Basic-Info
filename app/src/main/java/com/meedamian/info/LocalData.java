@@ -74,17 +74,30 @@ public class LocalData {
             cacheString(c, RemoteData.CITY, city);
     }
 
-    public void save(@Nullable String vanity, @Nullable String phone, @Nullable String country, @Nullable String city) {
+    public void saveUserEdits(@Nullable String vanity, @Nullable String phone, @Nullable String country, @Nullable String city) {
         putVanity(vanity);
         putPhone(phone);
+
+
+        // TODO: check if replace happened
         putCountry(country);
+
+
+        // TODO: check if replace happened
         putCity(city);
 
+
+        // TODO: cache values only on success
         RemoteData.upload(c, vanity, phone, country, city);
     }
 
     public void saveLocation(@NonNull String country, @NonNull String city) {
-        save(null, null, country, city);
+
+        // TODO: replace them if needed
+        putCountry(country);
+        putCity(city);
+
+        RemoteData.upload(c, null, null, country, city);
     }
 
 
