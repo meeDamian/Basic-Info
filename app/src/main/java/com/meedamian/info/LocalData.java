@@ -6,9 +6,6 @@ import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
-import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
-
 import org.jetbrains.annotations.Contract;
 
 public class LocalData {
@@ -27,15 +24,8 @@ public class LocalData {
     private Context c;
 
 
-    // Lazy singleton stuff
-    private static LocalData instance = null;
-    private LocalData(@NonNull Context context) {
+    public LocalData(@NonNull Context context) {
         this.c = context;
-    }
-    public static LocalData getInstance(@NonNull Context context) {
-        if (instance == null)
-            instance = new LocalData(context);
-        return instance;
     }
 
     public void fetchFresh(@NonNull RemoteData.DataCallback dc) {
@@ -66,17 +56,17 @@ public class LocalData {
 
 
     // Shared Preferences stuff
-    private SharedPreferences getSp() {
+    private static SharedPreferences getSp(Context c) {
         return PreferenceManager.getDefaultSharedPreferences(c);
     }
-    private SharedPreferences.Editor getSpEditor() {
-        return getSp().edit();
+    private static SharedPreferences.Editor getSpEditor(Context c) {
+        return getSp(c).edit();
     }
-    public String getString(@NonNull String key) {
-        return getSp().getString(key, null);
+    public static String getString(Context c, @NonNull String key) {
+        return getSp(c).getString(key, null);
     }
-    public void cacheString(@NonNull String key, @NonNull String val) {
-        getSpEditor()
+    public static void cacheString(Context c, @NonNull String key, @NonNull String val) {
+        getSpEditor(c)
             .putString(key, val)
             .putLong(getUpdatesKey(key), System.currentTimeMillis())
             .apply();
@@ -134,11 +124,11 @@ public class LocalData {
         return key + KEY_UPDATED_SUFFIX;
     }
 
-    @Nullable
-    private static String getStringFromJson(@NonNull JsonObject json, @NonNull String name) {
-        JsonElement tmp = json.get(name);
-        return (tmp == null) ? null : tmp.getAsString();
-    }
+//    @Nullable
+//    private static String getStringFromJson(@NonNull JsonObject json, @NonNull String name) {
+//        JsonElement tmp = json.get(name);
+//        return (tmp == null) ? null : tmp.getAsString();
+//    }
 
 
     // because inner classes are cool

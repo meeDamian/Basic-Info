@@ -12,10 +12,10 @@ public class SimChecker extends PermChecker {
 
     private static final int PHONE_CHANGED_NOTIFICATION_ID = 666;
 
-    private LocalData ld;
+    private Context c;
 
     public SimChecker(Context c) {
-        ld = LocalData.getInstance(c);
+        this.c = c;
 
         if(!isPermitted(c))
             return;
@@ -40,10 +40,10 @@ public class SimChecker extends PermChecker {
     }
 
     private String getCachedSubscriberId() {
-        return ld.getString(LocalData.SUBSCRIBER_ID);
+        return LocalData.getString(c, LocalData.SUBSCRIBER_ID);
     }
     private void cacheNewSubscriber(String newSubscriberId) {
-        ld.cacheString(LocalData.SUBSCRIBER_ID, newSubscriberId);
+        LocalData.cacheString(c, LocalData.SUBSCRIBER_ID, newSubscriberId);
     }
 
     private String getCurrentSubscriberId(@NonNull Context c) {
@@ -52,7 +52,7 @@ public class SimChecker extends PermChecker {
     }
 
     private void showSimChangedNotification(@NonNull Context c) {
-        String phoneNo = ld.getString(LocalData.PHONE);
+        String phoneNo = LocalData.getString(c, LocalData.PHONE);
 
         NotificationCompat.Builder mBuilder =
             new NotificationCompat.Builder(c)
