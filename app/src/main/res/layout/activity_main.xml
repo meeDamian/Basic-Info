@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools">
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:bind="http://schemas.android.com/apk/res-auto">
     <data>
         <variable
             name="state"
@@ -47,7 +48,7 @@
                         android:layout_height="wrap_content"
                         android:hint="@string/phone_hint"
                         android:text="@{state.phone}"
-                        android:addTextChangedListener="@{state.phoneWatcher}"
+                        android:addTextChangedListener="@{state.onPhoneChanged}"
                         android:inputType="phone" />
 
                 </android.support.design.widget.TextInputLayout>
@@ -82,7 +83,7 @@
                         android:layout_height="wrap_content"
                         android:onFocusChange="@{state.onVanityFocusChange}"
                         android:text="@{state.vanity}"
-                        android:addTextChangedListener="@{state.vanityWatcher}"
+                        android:addTextChangedListener="@{state.onVanityChanged}"
                         android:inputType="text" />
 
                 </android.support.design.widget.TextInputLayout>

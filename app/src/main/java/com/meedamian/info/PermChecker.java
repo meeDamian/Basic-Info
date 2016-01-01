@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.provider.Settings;
 import android.support.annotation.DrawableRes;
+import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.v4.app.NotificationCompat;
 
@@ -33,7 +34,7 @@ public abstract class PermChecker {
     protected abstract @StringRes   int getText();
 
 
-    private void showPermissionNotification(Context c) {
+    private void showPermissionNotification(@NonNull Context c) {
         NotificationCompat.Builder mBuilder =
             new NotificationCompat.Builder(c)
                 .setSmallIcon(getSmallIcon())
@@ -48,17 +49,17 @@ public abstract class PermChecker {
 
         getNotificationManager(c).notify(getNotificationId(), mBuilder.build());
     }
-    private void cancelPermissionNotification(Context c) {
+    private void cancelPermissionNotification(@NonNull Context c) {
         getNotificationManager(c).cancel(getNotificationId());
     }
 
 
-    protected NotificationManager getNotificationManager(Context c) {
+    protected NotificationManager getNotificationManager(@NonNull Context c) {
         return (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
     }
 
 
-    private PendingIntent getSettingsPendingIntent(Context c) {
+    private PendingIntent getSettingsPendingIntent(@NonNull Context c) {
         return PendingIntent.getActivity(c, 0,
             new Intent(
                 Settings.ACTION_APPLICATION_DETAILS_SETTINGS,
@@ -67,7 +68,7 @@ public abstract class PermChecker {
             PendingIntent.FLAG_UPDATE_CURRENT
         );
     }
-    protected PendingIntent getAppPendingIntent(Context c) {
+    protected PendingIntent getAppPendingIntent(@NonNull Context c) {
         return PendingIntent.getActivity(c, 0,
             new Intent(
                 c,

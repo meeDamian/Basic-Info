@@ -72,6 +72,7 @@ public class GeoChecker extends PermChecker implements
     @Override public void onConnectionSuspended(int i) {}
     @Override public void onConnectionFailed(ConnectionResult connectionResult) {}
 
+    @org.jetbrains.annotations.Contract(value = "!null, null -> null", pure = true)
     public static String getLocationQuery(@Nullable String country, @Nullable String city) {
         if (country == null)
             return city;

@@ -3,11 +3,13 @@ package com.meedamian.info;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+
+import org.jetbrains.annotations.Contract;
 
 public class LocalData {
     public static final String PHONE   = "phone";
@@ -20,39 +22,46 @@ public class LocalData {
     public static final String SUBSCRIBER_ID = "subscriber";
 
     private static final String KEY_UPDATED_SUFFIX  = "_updated";
-    private static final String KEY_REPLACER_SUFFIX = "_replacer";
+//    private static final String KEY_REPLACER_SUFFIX = "_replacer";
 
     private Context c;
 
 
     // Lazy singleton stuff
     private static LocalData instance = null;
-    private LocalData(Context context) {
+    private LocalData(@NonNull Context context) {
         this.c = context;
     }
-    public static LocalData getInstance(Context context) {
+    public static LocalData getInstance(@NonNull Context context) {
         if (instance == null)
             instance = new LocalData(context);
         return instance;
     }
 
-    public void fetchFresh(RemoteData.DataCallback dc) {
+    public void fetchFresh(@NonNull RemoteData.DataCallback dc) {
         RemoteData.fetchFresh(c, dc);
     }
 
     public String getPublicId() {
         return RemoteData.getPublicId(c);
     }
-    public String getPrettyUrl(String vanity) {
+    public String getPrettyUrl(@Nullable String vanity) {
         return RemoteData.getPrettyUrl(c, vanity);
     }
 
 
-    public void save(@Nullable String vanity, @Nullable String phone, @Nullable String country, @Nullable String city) {
-        Log.d("Basic Save", String.format("%s, %s, %s, %s", vanity, phone, country, city));
+    private void save(@Nullable String vanity, @Nullable String phone, @Nullable String country, @Nullable String city) {
+
         // TODO: process and save
 
         RemoteData.upload(c, vanity, phone, country, city);
+    }
+
+    public void saveLocation(@NonNull String country, @NonNull String city) {
+        save(null, null, country, city);
+    }
+    public void saveUserData(@NonNull String vanity, @NonNull String phone) {
+        save(vanity, phone, null, null);
     }
 
 
@@ -63,10 +72,10 @@ public class LocalData {
     private SharedPreferences.Editor getSpEditor() {
         return getSp().edit();
     }
-    public String getString(String key) {
+    public String getString(@NonNull String key) {
         return getSp().getString(key, null);
     }
-    public void cacheString(String key, String val) {
+    public void cacheString(@NonNull String key, @NonNull String val) {
         getSpEditor()
             .putString(key, val)
             .putLong(getUpdatesKey(key), System.currentTimeMillis())
@@ -120,10 +129,13 @@ public class LocalData {
 
 
     // Magical helpers
-    private static String getUpdatesKey(String key) {
+    @Contract(pure = true)
+    private static String getUpdatesKey(@NonNull String key) {
         return key + KEY_UPDATED_SUFFIX;
     }
-    private static String getStringFromJson(JsonObject json, String name) {
+
+    @Nullable
+    private static String getStringFromJson(@NonNull JsonObject json, @NonNull String name) {
         JsonElement tmp = json.get(name);
         return (tmp == null) ? null : tmp.getAsString();
     }

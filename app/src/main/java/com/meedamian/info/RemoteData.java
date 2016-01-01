@@ -79,27 +79,29 @@ public class RemoteData {
             });
     }
 
-    public static String getPublicUrl(Context c) {
+    public static String getPublicUrl(@NonNull Context c) {
         return API_BASE_URL + getPublicId(c);
     }
-    public static String getPrettyUrl(Context c, String vanity) {
+    public static String getPrettyUrl(@NonNull Context c, @Nullable String vanity) {
         return API_BASE_URL + (vanity != null ? vanity : RemoteData.getPublicId(c));
     }
 
 
-    private static String getStringFromJson(JsonObject json, String name) {
+    @Nullable
+    private static String getStringFromJson(@NonNull JsonObject json, @NonNull String name) {
         JsonElement tmp = json.get(name);
         return (tmp == null) ? null : tmp.getAsString();
     }
 
-    public static String getPrivateId(Context c) {
+    public static String getPrivateId(@NonNull Context c) {
         return Settings.Secure.getString(
             c.getContentResolver(),
             Settings.Secure.ANDROID_ID
         );
     }
 
-    public static String getPublicId(Context c) {
+    @Nullable
+    public static String getPublicId(@NonNull Context c) {
         String id = getPrivateId(c);
 
         try {

@@ -20,9 +20,6 @@ import permissions.dispatcher.RuntimePermissions;
 @RuntimePermissions
 public class MainActivity extends AppCompatActivity {
 
-    private MapFragment mapFragment;
-
-
     private StateData sd;
 
     @Override
@@ -43,7 +40,8 @@ public class MainActivity extends AppCompatActivity {
             ab.setDisplayShowTitleEnabled(false);
 
 
-        mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
+        // Setup Google Map Fragment
+        MapFragment mapFragment = (MapFragment) getFragmentManager().findFragmentById(R.id.map);
         mapFragment.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap googleMap) {

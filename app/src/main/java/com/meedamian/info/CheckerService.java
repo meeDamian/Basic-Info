@@ -31,6 +31,6 @@ public class CheckerService extends Service {
 
     private void save(String country, String city) {
         LocalData.getInstance(this)
-            .save(null, null, country, city);
+            .saveLocation(country, city);
     }
 }

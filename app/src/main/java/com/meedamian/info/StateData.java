@@ -4,10 +4,10 @@ import android.content.ClipData;
 import android.content.ClipboardManager;
 import android.content.Context;
 import android.databinding.BaseObservable;
+import android.databinding.Bindable;
 import android.databinding.ObservableField;
 import android.os.Handler;
 import android.support.annotation.Nullable;
-import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
@@ -18,9 +18,7 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.meedamian.info.meh.TextWatcherAdapter;
-
-import java.util.Objects;
+import com.meedamian.info.meh.SimpleTextWatcher;
 
 public class StateData extends BaseObservable {
 
@@ -28,27 +26,49 @@ public class StateData extends BaseObservable {
     private GeoChecker gc;
     private Context    c;
 
-    public ObservableField<String> phone = new ObservableField<>();
-    public void setPhone(String phone) {
-        this.phone.set(phone);
+
+    // (Two-way) Data-Binding of PHONE
+    private String phone;
+    @Bindable
+    public String getPhone() {
+        return phone;
     }
-    public TextWatcher phoneWatcher = new TextWatcherAdapter() {
-        @Override public void afterTextChanged(Editable s) {
-        if (!Objects.equals(phone.get(), s.toString()))
-            phone.set(s.toString());
+    private void setPhoneAtomic(String phone) {
+        this.phone = phone;
+    }
+    public void setPhone(String phone) {
+        setPhoneAtomic(phone);
+        notifyPropertyChanged(BR.phone);
+    }
+    public TextWatcher onPhoneChanged = new SimpleTextWatcher() {
+        @Override
+        public void onTextChanged(String newPhone) {
+        setPhoneAtomic(newPhone);
         }
     };
 
-    public ObservableField<String> vanity = new ObservableField<>();
-    public void setVanity(String vanity) {
-        this.vanity.set(vanity);
+    
+    // (Two-way) Data-Binding of VANITY
+    private String vanity;
+    @Bindable
+    public String getVanity() {
+        return vanity;
     }
-    public TextWatcher vanityWatcher = new TextWatcherAdapter() {
-        @Override public void afterTextChanged(Editable s) {
-        if (!Objects.equals(vanity.get(), s.toString()))
-            vanity.set(s.toString());
+    private void setVanityAtomic(String vanity) {
+        this.vanity = vanity;
+    }
+    public void setVanity(String vanity) {
+        setVanityAtomic(vanity);
+        notifyPropertyChanged(BR.vanity);
+    }
+    public TextWatcher onVanityChanged = new SimpleTextWatcher() {
+            @Override
+            public void onTextChanged(String newVanity) {
+        setVanityAtomic(newVanity);
         }
     };
+
+
 
     public ObservableField<String> country = new ObservableField<>();
     public void setCountry(String country) {
@@ -76,7 +96,7 @@ public class StateData extends BaseObservable {
 
     public void onCopyVanity(View v) {
         ClipboardManager cm = (ClipboardManager) c.getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData cd = ClipData.newPlainText("Basic Data user URL", ld.getPrettyUrl(vanity.get()));
+        ClipData cd = ClipData.newPlainText("Basic Data user URL", ld.getPrettyUrl(getVanity()));
         cm.setPrimaryClip(cd);
         Toast.makeText(c, "URL copied to clipboard", Toast.LENGTH_LONG).show();
     }
@@ -86,12 +106,7 @@ public class StateData extends BaseObservable {
     }
 
     public void save(@Nullable View v) {
-        ld.save(
-            phone.get(),
-            vanity.get(),
-            null,
-            null
-        );
+        ld.saveUserData(getVanity(), getPhone());
     }
 
     private GoogleMap googleMap;
