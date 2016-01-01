@@ -5,6 +5,7 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.databinding.BaseObservable;
 import android.databinding.Bindable;
+import android.databinding.ObservableBoolean;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.text.TextWatcher;
@@ -42,6 +43,9 @@ public class StateData extends BaseObservable {
             setCountry(country);
             setCity(city);
 
+            // TODO: unblock UI
+            layoutEnabled.set(true);
+
             position = gc.getCoords(country, city);
             if (position != null)
                 stupidChecker();
@@ -49,6 +53,7 @@ public class StateData extends BaseObservable {
         });
     }
 
+    public final ObservableBoolean layoutEnabled = new ObservableBoolean();
 
     // (Two-way) Data-Binding of COUNTRY
     private String country;
