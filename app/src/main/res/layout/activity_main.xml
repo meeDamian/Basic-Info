@@ -1,96 +1,162 @@
 <?xml version="1.0" encoding="utf-8"?>
-
-<FrameLayout
+<layout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:clipChildren="false"
-    tools:context=".MainActivity">
+    xmlns:tools="http://schemas.android.com/tools">
+    <data>
+        <variable
+            name="state"
+            type="com.meedamian.info.StateData" />
+    </data>
 
-    <LinearLayout
+    <FrameLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
-        android:weightSum="2">
+        android:clipChildren="false"
+        tools:context=".MainActivity">
 
-        <fragment
-            android:id="@+id/map"
-            android:name="com.google.android.gms.maps.MapFragment"
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:layout_marginBottom="10dp"
-            android:fitsSystemWindows="true" />
+            android:orientation="vertical"
+            android:focusable="true"
+            android:focusableInTouchMode="true"
+            android:weightSum="2">
 
-        <RelativeLayout
+            <fragment
+                android:id="@+id/map"
+                android:name="com.google.android.gms.maps.MapFragment"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:layout_marginBottom="10dp" />
+
+            <RelativeLayout
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_weight="1">
+
+                <LinearLayout android:id="@+id/location"
+                              android:layout_width="match_parent"
+                              android:layout_height="wrap_content"
+                              android:layout_marginStart="16dp"
+                              android:layout_marginEnd="16dp"
+                              android:orientation="horizontal"
+                              android:baselineAligned="false"
+                              android:weightSum="2">
+
+                    <android.support.design.widget.TextInputLayout
+                        android:id="@+id/countryWrapper"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1">
+
+                        <EditText
+                            android:id="@+id/country"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="@string/country_hint"
+                            android:text="@{state.country}"
+                            android:enabled="@{state.locationFieldsEnabled}"
+                            android:addTextChangedListener="@{state.onCountryChanged}"
+                            android:inputType="textCapWords" />
+
+                    </android.support.design.widget.TextInputLayout>
+
+                    <android.support.design.widget.TextInputLayout
+                        android:id="@+id/cityWrapper"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1">
+
+                        <EditText
+                            android:id="@+id/city"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="@string/city_hint"
+                            android:text="@{state.city}"
+                            android:enabled="@{state.locationFieldsEnabled}"
+                            android:addTextChangedListener="@{state.onCityChanged}"
+                            android:inputType="textCapWords" />
+
+                    </android.support.design.widget.TextInputLayout>
+
+                </LinearLayout>
+
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/phoneWrapper"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_below="@id/location">
+
+                    <EditText
+                        android:id="@+id/phone"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:hint="@string/phone_hint"
+                        android:text="@{state.phone}"
+                        android:enabled="@{state.userFieldsEnabled}"
+                        android:addTextChangedListener="@{state.onPhoneChanged}"
+                        android:inputType="phone" />
+
+                </android.support.design.widget.TextInputLayout>
+
+                <ImageButton
+                    android:id="@+id/copy"
+                    style="?android:attr/borderlessButtonStyle"
+                    android:layout_width="40dp"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentEnd="true"
+                    android:layout_below="@id/phoneWrapper"
+                    android:layout_centerVertical="true"
+                    android:layout_marginEnd="16dp"
+                    android:contentDescription="@string/cont_desc_copy_button"
+                    android:onClick="@{state.onCopyVanity}"
+                    android:src="@drawable/ic_content_copy_black_24dp" />
+
+                <android.support.design.widget.TextInputLayout
+                    android:id="@+id/vanityWrapper"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_below="@id/phoneWrapper"
+                    android:hint="@{@string/current_url(state.vanityHint)}"
+                    android:layout_marginStart="16dp"
+                    android:layout_toStartOf="@id/copy"
+
+                    tools:hint="@string/current_url">
+
+                    <EditText
+                        android:id="@+id/vanity"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:onFocusChange="@{state.onVanityFocusChange}"
+                        android:text="@{state.vanity}"
+                        android:enabled="@{state.userFieldsEnabled}"
+                        android:addTextChangedListener="@{state.onVanityChanged}"
+                        android:inputType="text" />
+
+                </android.support.design.widget.TextInputLayout>
+            </RelativeLayout>
+        </LinearLayout>
+
+        <android.support.v7.widget.Toolbar
+            android:id="@+id/toolbar"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:layout_weight="1">
+            android:layout_height="wrap_content"
+            android:background="@android:color/transparent"
+            android:minHeight="?attr/actionBarSize" />
 
-            <android.support.design.widget.TextInputLayout
-                android:id="@+id/phoneWrapper"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginLeft="16dp"
-                android:layout_marginRight="16dp">
+        <android.support.design.widget.FloatingActionButton
+            android:id="@+id/save"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_marginBottom="16dp"
+            android:layout_marginEnd="16dp"
+            android:onClick="@{state.save}"
+            android:tint="@android:color/white"
+            android:src="@drawable/ic_save_black_24dp" />
 
-                <EditText
-                    android:id="@+id/phone"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/phone_hint"
-                    android:inputType="phone" />
-
-            </android.support.design.widget.TextInputLayout>
-
-            <ImageButton
-                android:id="@+id/copy"
-                style="?android:attr/borderlessButtonStyle"
-                android:layout_width="40dp"
-
-                android:layout_height="wrap_content"
-                android:layout_alignParentEnd="true"
-                android:layout_below="@id/phoneWrapper"
-                android:layout_centerVertical="true"
-                android:layout_marginEnd="16dp"
-                android:contentDescription="@string/cont_desc_copy_button"
-                android:src="@drawable/ic_content_copy_black_24dp" />
-
-            <android.support.design.widget.TextInputLayout
-                android:id="@+id/vanityWrapper"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_below="@id/phoneWrapper"
-                android:layout_marginStart="16dp"
-                android:layout_toStartOf="@id/copy">
-
-                <EditText
-                    android:id="@+id/vanity"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:hint="@string/current_url"
-                    android:inputType="text" />
-
-            </android.support.design.widget.TextInputLayout>
-        </RelativeLayout>
-    </LinearLayout>
-
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/toolbar"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:background="@android:color/transparent"
-        android:minHeight="?attr/actionBarSize"/>
-
-    <android.support.design.widget.FloatingActionButton
-        android:id="@+id/save"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_marginBottom="16dp"
-        android:layout_marginEnd="16dp"
-        android:tint="@android:color/white"
-        android:src="@drawable/ic_save_black_24dp" />
-
-</FrameLayout>
+    </FrameLayout>
+</layout>

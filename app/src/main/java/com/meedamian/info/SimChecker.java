@@ -2,6 +2,7 @@ package com.meedamian.info;
 
 import android.Manifest;
 import android.content.Context;
+import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.TelephonyManager;
 
@@ -11,10 +12,10 @@ public class SimChecker extends PermChecker {
 
     private static final int PHONE_CHANGED_NOTIFICATION_ID = 666;
 
-    private BasicData bd;
+    private Context c;
 
     public SimChecker(Context c) {
-        bd = BasicData.getInstance(c);
+        this.c = c;
 
         if(!isPermitted(c))
             return;
@@ -39,19 +40,19 @@ public class SimChecker extends PermChecker {
     }
 
     private String getCachedSubscriberId() {
-        return bd.getString(BasicData.SUBSCRIBER_ID);
+        return LocalData.getString(c, LocalData.SUBSCRIBER_ID);
     }
     private void cacheNewSubscriber(String newSubscriberId) {
-        bd.cacheString(BasicData.SUBSCRIBER_ID, newSubscriberId);
+        LocalData.cacheString(c, LocalData.SUBSCRIBER_ID, newSubscriberId);
     }
 
-    private String getCurrentSubscriberId(Context c) {
+    private String getCurrentSubscriberId(@NonNull Context c) {
         TelephonyManager tm = (TelephonyManager) c.getSystemService(Context.TELEPHONY_SERVICE);
         return tm.getSubscriberId();
     }
 
-    private void showSimChangedNotification(Context c) {
-        String phoneNo = bd.getString(BasicData.PHONE);
+    private void showSimChangedNotification(@NonNull Context c) {
+        String phoneNo = LocalData.getString(c, RemoteData.PHONE);
 
         NotificationCompat.Builder mBuilder =
             new NotificationCompat.Builder(c)

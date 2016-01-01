@@ -20,7 +20,7 @@ public class Receiver extends BroadcastReceiver {
         }
     }
 
-    public static void setAlarm(Context context) {
+    public static void setAlarm(@NonNull Context context) {
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         am.setInexactRepeating(AlarmManager.ELAPSED_REALTIME,
             AlarmManager.INTERVAL_FIFTEEN_MINUTES,
