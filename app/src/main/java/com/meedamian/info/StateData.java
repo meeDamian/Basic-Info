@@ -47,7 +47,7 @@ public class StateData extends BaseObservable {
         }
     };
 
-    
+
     // (Two-way) Data-Binding of VANITY
     private String vanity;
     @Bindable
@@ -67,7 +67,6 @@ public class StateData extends BaseObservable {
         setVanityAtomic(newVanity);
         }
     };
-
 
 
     public ObservableField<String> country = new ObservableField<>();

@@ -7,6 +7,9 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
+import android.widget.Toast;
 
 import com.example.julian.locationservice.GeoChecker;
 import com.google.android.gms.maps.GoogleMap;
@@ -80,11 +83,22 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
     }
 
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        getMenuInflater().inflate(R.menu.menu_main, menu);
-//        return true;
-//    }
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.settings:
+                Toast.makeText(this, "TODO: Open Settings...", Toast.LENGTH_LONG).show();
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
+    }
 
 //    private void showEditDialog(final String what) {
 //        final EditText input = new EditText(this);
@@ -117,15 +131,7 @@ public class MainActivity extends AppCompatActivity {
 //        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, getResources().getDisplayMetrics());
 //    }
 
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        switch (item.getItemId()) {
-//            case R.id.menu_country: showEditDialog(BasicData.COUNTRY);  break;
-//            case R.id.menu_city:    showEditDialog(BasicData.CITY);     break;
-//        }
-//
-//        return super.onOptionsItemSelected(item);
-//    }
+
 
     @NeedsPermission(SimChecker.PERMISSION)
     protected void initSim() {
