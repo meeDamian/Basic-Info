@@ -2,6 +2,8 @@
     <string name="app_name">Basic Info</string>
     <string name="current_url">Current URL: /%s</string>
     <string name="phone_hint">Phone Number</string>
+    <string name="country_hint">Country</string>
+    <string name="city_hint">City</string>
     <string name="cont_desc_copy_button">Copy Button</string>
 
     <string name="menu_country">Edit Country</string>

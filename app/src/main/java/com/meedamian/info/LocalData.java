@@ -74,7 +74,7 @@ public class LocalData {
             cacheString(c, RemoteData.CITY, city);
     }
 
-    private void save(@Nullable String vanity, @Nullable String phone, @Nullable String country, @Nullable String city) {
+    public void save(@Nullable String vanity, @Nullable String phone, @Nullable String country, @Nullable String city) {
         putVanity(vanity);
         putPhone(phone);
         putCountry(country);
@@ -85,9 +85,6 @@ public class LocalData {
 
     public void saveLocation(@NonNull String country, @NonNull String city) {
         save(null, null, country, city);
-    }
-    public void saveUserData(@NonNull String vanity, @NonNull String phone) {
-        save(vanity, phone, null, null);
     }
 
 

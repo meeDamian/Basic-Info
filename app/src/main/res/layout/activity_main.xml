@@ -33,12 +33,58 @@
                 android:layout_height="match_parent"
                 android:layout_weight="1">
 
+                <LinearLayout android:id="@+id/location"
+                              android:layout_width="match_parent"
+                              android:layout_height="wrap_content"
+                              android:layout_marginStart="16dp"
+                              android:layout_marginEnd="16dp"
+                              android:orientation="horizontal"
+                              android:baselineAligned="false"
+                              android:weightSum="2">
+
+                    <android.support.design.widget.TextInputLayout
+                        android:id="@+id/countryWrapper"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1">
+
+                        <EditText
+                            android:id="@+id/country"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="@string/country_hint"
+                            android:text="@{state.country}"
+                            android:addTextChangedListener="@{state.onCountryChanged}"
+                            android:inputType="textCapWords" />
+
+                    </android.support.design.widget.TextInputLayout>
+
+                    <android.support.design.widget.TextInputLayout
+                        android:id="@+id/cityWrapper"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1">
+
+                        <EditText
+                            android:id="@+id/city"
+                            android:layout_width="match_parent"
+                            android:layout_height="wrap_content"
+                            android:hint="@string/city_hint"
+                            android:text="@{state.city}"
+                            android:addTextChangedListener="@{state.onCityChanged}"
+                            android:inputType="textCapWords" />
+
+                    </android.support.design.widget.TextInputLayout>
+
+                </LinearLayout>
+
                 <android.support.design.widget.TextInputLayout
                     android:id="@+id/phoneWrapper"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:layout_marginLeft="16dp"
-                    android:layout_marginRight="16dp">
+                    android:layout_marginStart="16dp"
+                    android:layout_marginEnd="16dp"
+                    android:layout_below="@id/location">
 
                     <EditText
                         android:id="@+id/phone"
