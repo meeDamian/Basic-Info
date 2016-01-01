@@ -110,7 +110,7 @@ public class LocalData {
     }
 
     public void save() {
-        RemoteData.upload(c,
+        saveUserEdits(c,
             sd.getVanity(),
             sd.getPhone(),
             sd.getCountry(),
