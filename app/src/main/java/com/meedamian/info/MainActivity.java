@@ -31,7 +31,11 @@ public class MainActivity extends AppCompatActivity {
 
         // Bootstrap Data-Binding
         ActivityMainBinding amb = DataBindingUtil.setContentView(this, R.layout.activity_main);
-        amb.setState(sd = StateData.getInstance(this));
+        sd = new StateData(this,
+            LocalData.getInstance(this),
+            new GeoChecker(this)
+        );
+        amb.setState(sd);
 
 
         // Config Toolbar

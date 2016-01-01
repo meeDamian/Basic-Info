@@ -26,6 +26,26 @@ public class StateData extends BaseObservable {
     private GeoChecker gc;
     private Context    c;
 
+    public StateData(Context context, LocalData ld, final GeoChecker gc) {
+        this.c = context;
+        this.ld = ld;
+        this.gc = gc;
+
+        ld.fetchFresh(new RemoteData.DataCallback() {
+            @Override
+            public void onDataReady(@Nullable String vanity, @Nullable String phone, @Nullable String country, @Nullable String city) {
+            setVanity(vanity);
+            setPhone(phone);
+            setCountry(country);
+            setCity(city);
+
+            position = gc.getCoords(country, city);
+            if (position != null)
+                stupidChecker();
+            }
+        });
+    }
+
 
     // (Two-way) Data-Binding of PHONE
     private String phone;
@@ -67,6 +87,24 @@ public class StateData extends BaseObservable {
         setVanityAtomic(newVanity);
         }
     };
+    public void onVanityFocusChange(final View v, final boolean hasFocus) {
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+            ((EditText)v).setHint(hasFocus ? "Set your vanity" : "");
+            }
+        }, 200);
+    }
+    public void onCopyVanity(View v) {
+        ClipboardManager cm = (ClipboardManager) c.getSystemService(Context.CLIPBOARD_SERVICE);
+        ClipData cd = ClipData.newPlainText("Basic Data user URL", ld.getPrettyUrl(getVanity()));
+        cm.setPrimaryClip(cd);
+        Toast.makeText(c, "URL copied to clipboard", Toast.LENGTH_LONG).show();
+    }
+    public String getVanityHint() {
+        return ld.getPublicId();
+    }
+
 
 
     public ObservableField<String> country = new ObservableField<>();
@@ -79,33 +117,8 @@ public class StateData extends BaseObservable {
         this.country.set(city);
     }
 
-
-    public String getVanityHint() {
-        return ld.getPublicId();
-    }
-
-    public void onVanityFocusChange(final View v, final boolean hasFocus) {
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-            ((EditText)v).setHint(hasFocus ? "Set your vanity" : "");
-            }
-        }, 200);
-    }
-
-    public void onCopyVanity(View v) {
-        ClipboardManager cm = (ClipboardManager) c.getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData cd = ClipData.newPlainText("Basic Data user URL", ld.getPrettyUrl(getVanity()));
-        cm.setPrimaryClip(cd);
-        Toast.makeText(c, "URL copied to clipboard", Toast.LENGTH_LONG).show();
-    }
-
     public void initGeo() {
         gc.init();
-    }
-
-    public void save(@Nullable View v) {
-        ld.saveUserData(getVanity(), getPhone());
     }
 
     private GoogleMap googleMap;
@@ -124,35 +137,7 @@ public class StateData extends BaseObservable {
         }
     }
 
-    // Lazy singleton stuff
-    private StateData(Context context, LocalData ld, final GeoChecker gc) {
-        this.c = context;
-        this.ld = ld;
-        this.gc = gc;
-
-        ld.fetchFresh(new RemoteData.DataCallback() {
-            @Override
-            public void onDataReady(@Nullable String vanity, @Nullable String phone, @Nullable String country, @Nullable String city) {
-            setVanity(vanity);
-            setPhone(phone);
-            setCountry(country);
-            setCity(city);
-
-            position = gc.getCoords(country, city);
-            if (position != null)
-                stupidChecker();
-            }
-        });
-    }
-    private static StateData instance = null;
-    public static StateData getInstance(Context context) {
-        if (instance == null) {
-            instance = new StateData(
-                context,
-                LocalData.getInstance(context),
-                new GeoChecker(context)
-            );
-        }
-        return instance;
+    public void save(@Nullable View v) {
+        ld.saveUserData(getVanity(), getPhone());
     }
 }
