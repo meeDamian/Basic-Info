@@ -42,8 +42,7 @@ public class StateData extends BaseObservable {
             setPhone(phone);
             setCountry(country);
             setCity(city);
-
-            // TODO: unblock UI
+                
             layoutEnabled.set(true);
 
             position = gc.getCoords(country, city);
