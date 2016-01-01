@@ -29,17 +29,15 @@ public class GeoChecker extends PermChecker implements
     private Context c;
 
 
-    public GeoChecker(Context context, LocationAvailabler locationer) {
-        la = locationer;
+    public GeoChecker(Context context) {
         c = context;
-
-        if (locationer != null && isPermitted(c))
-            init();
     }
-    public GeoChecker(Context c) { this(c, null); }
 
-    public void init() {
-        buildGoogleApiClient(c).connect();
+    public void init(LocationAvailabler la) {
+        if (la != null && isPermitted(c)) {
+            this.la = la;
+            buildGoogleApiClient(c).connect();
+        }
     }
 
     @Override

@@ -30,6 +30,13 @@ public class StateData extends BaseObservable {
         this.ld = ld;
         this.gc = gc;
 
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+            locationFieldsEnabled.set(true);
+            }
+        }, 4000);
+
         setVanity(ld.getVanity());
         setPhone(ld.getPhone());
         setCountry(ld.getCountry());
@@ -42,8 +49,8 @@ public class StateData extends BaseObservable {
             setPhone(phone);
             setCountry(country);
             setCity(city);
-                
-            layoutEnabled.set(true);
+
+            userFieldsEnabled.set(true);
 
             position = gc.getCoords(country, city);
             if (position != null)
@@ -52,7 +59,8 @@ public class StateData extends BaseObservable {
         });
     }
 
-    public final ObservableBoolean layoutEnabled = new ObservableBoolean();
+    public final ObservableBoolean userFieldsEnabled = new ObservableBoolean();
+    public final ObservableBoolean locationFieldsEnabled = new ObservableBoolean();
 
     // (Two-way) Data-Binding of COUNTRY
     private String country;
@@ -156,7 +164,14 @@ public class StateData extends BaseObservable {
 
 
     public void initGeo() {
-        gc.init();
+        gc.init(new GeoChecker.LocationAvailabler() {
+            @Override
+            public void onLocationAvailable(String country, String city) {
+            setCountry(country);
+            setCity(city);
+            locationFieldsEnabled.set(true);
+            }
+        });
     }
 
     private GoogleMap googleMap;

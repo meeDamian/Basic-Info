@@ -19,7 +19,7 @@ public class CheckerService extends Service {
 
         new SimChecker(this);
 
-        new GeoChecker(this, new GeoChecker.LocationAvailabler() {
+        new GeoChecker(this).init(new GeoChecker.LocationAvailabler() {
             @Override
             public void onLocationAvailable(String country, String city) {
             save(country, city);

@@ -56,7 +56,7 @@
                             android:layout_height="wrap_content"
                             android:hint="@string/country_hint"
                             android:text="@{state.country}"
-                            android:enabled="@{state.layoutEnabled}"
+                            android:enabled="@{state.locationFieldsEnabled}"
                             android:addTextChangedListener="@{state.onCountryChanged}"
                             android:inputType="textCapWords" />
 
@@ -74,7 +74,7 @@
                             android:layout_height="wrap_content"
                             android:hint="@string/city_hint"
                             android:text="@{state.city}"
-                            android:enabled="@{state.layoutEnabled}"
+                            android:enabled="@{state.locationFieldsEnabled}"
                             android:addTextChangedListener="@{state.onCityChanged}"
                             android:inputType="textCapWords" />
 
@@ -96,7 +96,7 @@
                         android:layout_height="wrap_content"
                         android:hint="@string/phone_hint"
                         android:text="@{state.phone}"
-                        android:enabled="@{state.layoutEnabled}"
+                        android:enabled="@{state.userFieldsEnabled}"
                         android:addTextChangedListener="@{state.onPhoneChanged}"
                         android:inputType="phone" />
 
@@ -132,7 +132,7 @@
                         android:layout_height="wrap_content"
                         android:onFocusChange="@{state.onVanityFocusChange}"
                         android:text="@{state.vanity}"
-                        android:enabled="@{state.layoutEnabled}"
+                        android:enabled="@{state.userFieldsEnabled}"
                         android:addTextChangedListener="@{state.onVanityChanged}"
                         android:inputType="text" />
 
