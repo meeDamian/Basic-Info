@@ -6,6 +6,7 @@ import android.content.Context;
 import android.databinding.BaseObservable;
 import android.databinding.Bindable;
 import android.databinding.ObservableBoolean;
+import android.databinding.ObservableField;
 import android.os.Handler;
 import android.support.annotation.Nullable;
 import android.text.TextWatcher;
@@ -21,46 +22,25 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.meedamian.info.meh.SimpleTextWatcher;
 
 public class StateData extends BaseObservable {
-    private LocalData  ld;
-    private GeoChecker gc;
-    private Context    c;
 
-    public StateData(Context context, LocalData ld, final GeoChecker gc) {
+    private Context c;
+
+    public StateData(Context context) {
         this.c = context;
-        this.ld = ld;
-        this.gc = gc;
-
-        new Handler().postDelayed(new Runnable() {
-            @Override
-            public void run() {
-            locationFieldsEnabled.set(true);
-            }
-        }, 4000);
-
-        setVanity(ld.getVanity());
-        setPhone(ld.getPhone());
-        setCountry(ld.getCountry());
-        setCity(ld.getCity());
-
-        ld.fetchFresh(new RemoteData.DataCallback() {
-            @Override
-            public void onDataReady(@Nullable String vanity, @Nullable String phone, @Nullable String country, @Nullable String city) {
-            setVanity(vanity);
-            setPhone(phone);
-            setCountry(country);
-            setCity(city);
-
-            userFieldsEnabled.set(true);
-
-            position = gc.getCoords(country, city);
-            if (position != null)
-                stupidChecker();
-            }
-        });
     }
 
     public final ObservableBoolean userFieldsEnabled = new ObservableBoolean();
+    public void enableUserFields() {
+        userFieldsEnabled.set(true);
+    }
+
     public final ObservableBoolean locationFieldsEnabled = new ObservableBoolean();
+    public void enableLocationFields() {
+        locationFieldsEnabled.set(true);
+    }
+
+    public final ObservableField<String> vanityHint = new ObservableField<>();
+    public final ObservableField<String> prettyUrl = new ObservableField<>();
 
     // (Two-way) Data-Binding of COUNTRY
     private String country;
@@ -154,25 +134,11 @@ public class StateData extends BaseObservable {
     }
     public void onCopyVanity(View v) {
         ClipboardManager cm = (ClipboardManager) c.getSystemService(Context.CLIPBOARD_SERVICE);
-        ClipData cd = ClipData.newPlainText("Basic Data user URL", ld.getPrettyUrl(getVanity()));
+        ClipData cd = ClipData.newPlainText("Basic Data user URL", prettyUrl.get());
         cm.setPrimaryClip(cd);
         Toast.makeText(c, "URL copied to clipboard", Toast.LENGTH_LONG).show();
     }
-    public String getVanityHint() {
-        return ld.getPublicId();
-    }
 
-
-    public void initGeo() {
-        gc.init(new GeoChecker.LocationAvailabler() {
-            @Override
-            public void onLocationAvailable(String country, String city) {
-            setCountry(country);
-            setCity(city);
-            locationFieldsEnabled.set(true);
-            }
-        });
-    }
 
     private GoogleMap googleMap;
     public void setGoogleMap(GoogleMap googleMap) {
@@ -180,6 +146,10 @@ public class StateData extends BaseObservable {
         stupidChecker();
     }
     private LatLng position;
+    public void setPosition(LatLng latLng) {
+        this.position = latLng;
+        stupidChecker();
+    }
     private void stupidChecker() {
         if (googleMap != null && position != null) {
             googleMap.addMarker(new MarkerOptions()
@@ -191,6 +161,6 @@ public class StateData extends BaseObservable {
     }
 
     public void save(@Nullable View v) {
-        ld.saveUserEdits(getVanity(), getPhone(), getCountry(), getCity());
+        LocalData.saveUserEdits(c, getVanity(), getPhone(), getCountry(), getCity());
     }
 }

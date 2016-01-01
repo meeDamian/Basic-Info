@@ -2,9 +2,12 @@ package com.meedamian.info;
 
 import android.content.Context;
 import android.content.SharedPreferences;
+import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+
+import com.example.julian.locationservice.GeoChecker;
 
 import org.jetbrains.annotations.Contract;
 
@@ -16,37 +19,59 @@ public class LocalData {
     private static final String KEY_UPDATED_SUFFIX  = "_updated";
 //    private static final String KEY_REPLACER_SUFFIX = "_replacer";
 
+    private StateData sd;
+    private GeoChecker gc;
     private Context c;
 
-    public LocalData(@NonNull Context context) {
+    public LocalData(@NonNull Context context, StateData stateData, GeoChecker geoChecker) {
         this.c = context;
-    }
+        this.sd = stateData;
+        this.gc = geoChecker;
 
-    public void fetchFresh(@NonNull final RemoteData.DataCallback dc) {
+        sd.setPhone(getPhone());
+        sd.setVanity(getVanity());
+        sd.setCountry(getCountry());
+        sd.setCountry(getCity());
+
+        sd.vanityHint.set(RemoteData.getPublicId(context));
+        sd.prettyUrl.set(RemoteData.getPrettyUrl(c, getVanity()));
+
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+            sd.enableLocationFields();
+            sd.enableUserFields();
+            }
+        }, 4000);
+
         RemoteData.fetchFresh(c, new RemoteData.DataCallback() {
             @Override
             public void onDataReady(@Nullable String vanity, @Nullable String phone, @Nullable String country, @Nullable String city) {
             putVanity(vanity);
-            putPhone(phone);
-            putCountry(country);
-            putCity(city);
+            sd.setVanity(vanity);
+            sd.prettyUrl.set(RemoteData.getPrettyUrl(c, vanity));
 
-            dc.onDataReady(vanity, phone, country, city);
+            putPhone(phone);
+            sd.setPhone(phone);
+
+            putCountry(country);
+            sd.setCountry(country);
+
+            putCity(city);
+            sd.setCity(city);
+
+            sd.enableUserFields();
             }
         });
-    }
-
-    public String getPublicId() {
-        return RemoteData.getPublicId(c);
-    }
-    public String getPrettyUrl(@Nullable String vanity) {
-        return RemoteData.getPrettyUrl(c, vanity);
     }
 
     public String getVanity() {
         return getString(c, RemoteData.VANITY);
     }
     public void putVanity(@Nullable String vanity) {
+        putVanity(c, vanity);
+    }
+    public static void putVanity(@NonNull Context c, @Nullable String vanity) {
         if (vanity != null)
             cacheString(c, RemoteData.VANITY, vanity);
     }
@@ -55,6 +80,9 @@ public class LocalData {
         return getString(c, RemoteData.PHONE);
     }
     public void putPhone(@Nullable String phone) {
+        putPhone(c, phone);
+    }
+    public static void putPhone(@NonNull Context c, @Nullable String phone) {
         if (phone != null)
             cacheString(c, RemoteData.PHONE, phone);
     }
@@ -63,40 +91,65 @@ public class LocalData {
         return getString(c, RemoteData.COUNTRY);
     }
     public void putCountry(@Nullable String country) {
+        putCountry(c, country);
+    }
+    public static void putCountry(@NonNull Context c, @Nullable String country) {
         if (country != null)
             cacheString(c, RemoteData.COUNTRY, country);
     }
+
     public String getCity() {
         return getString(c, RemoteData.CITY);
     }
     public void putCity(String city) {
+        putCity(c, city);
+    }
+    public static void putCity(@NonNull Context c, @Nullable String city) {
         if(city != null)
             cacheString(c, RemoteData.CITY, city);
     }
 
-    public void saveUserEdits(@Nullable String vanity, @Nullable String phone, @Nullable String country, @Nullable String city) {
-        putVanity(vanity);
-        putPhone(phone);
+    public void save() {
+        RemoteData.upload(c,
+            sd.getVanity(),
+            sd.getPhone(),
+            sd.getCountry(),
+            sd.getCity()
+        );
+    }
+
+    public static void saveUserEdits(@NonNull Context c, @Nullable String vanity, @Nullable String phone, @Nullable String country, @Nullable String city) {
+        putVanity(c, vanity);
+        putPhone(c, phone);
 
 
         // TODO: check if replace happened
-        putCountry(country);
+        putCountry(c, country);
 
 
         // TODO: check if replace happened
-        putCity(city);
+        putCity(c, city);
 
 
         // TODO: cache values only on success
         RemoteData.upload(c, vanity, phone, country, city);
     }
 
-    public void saveLocation(@NonNull String country, @NonNull String city) {
+    public void initGeo() {
+        gc.init(new GeoChecker.LocationAvailabler() {
+            @Override
+            public void onLocationAvailable(String country, String city) {
+            sd.setCountry(country);
+            sd.setCity(city);
+            sd.setPosition(gc.getCoords(country, city));
+            sd.enableLocationFields();
+            }
+        });
+    }
 
-        // TODO: replace them if needed
-        putCountry(country);
-        putCity(city);
-
+    public static void saveLocation(@NonNull Context c, @NonNull String country, @NonNull String city) {
+        putCountry(c, country);
+        putCity(c, city);
         RemoteData.upload(c, null, null, country, city);
     }
 
@@ -116,6 +169,12 @@ public class LocalData {
             .putString(key, val)
             .putLong(getUpdatesKey(key), System.currentTimeMillis())
             .apply();
+    }
+
+    // Magical helpers
+    @Contract(pure = true)
+    private static String getUpdatesKey(@NonNull String key) {
+        return key + KEY_UPDATED_SUFFIX;
     }
 
 
@@ -161,14 +220,6 @@ public class LocalData {
 //
 //        return from;
 //    }
-
-
-
-    // Magical helpers
-    @Contract(pure = true)
-    private static String getUpdatesKey(@NonNull String key) {
-        return key + KEY_UPDATED_SUFFIX;
-    }
 
 //    @Nullable
 //    private static String getStringFromJson(@NonNull JsonObject json, @NonNull String name) {

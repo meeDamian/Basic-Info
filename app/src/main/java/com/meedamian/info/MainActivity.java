@@ -20,7 +20,7 @@ import permissions.dispatcher.RuntimePermissions;
 @RuntimePermissions
 public class MainActivity extends AppCompatActivity {
 
-    private StateData sd;
+    private LocalData ld;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -28,9 +28,10 @@ public class MainActivity extends AppCompatActivity {
 
         // Bootstrap Data-Binding
         ActivityMainBinding amb = DataBindingUtil.setContentView(this, R.layout.activity_main);
-        sd = new StateData(this, new LocalData(this), new GeoChecker(this));
+        final StateData sd = new StateData(this);
         amb.setState(sd);
 
+        ld = new LocalData(this, sd, new GeoChecker(this));
 
         // Config Toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -77,7 +78,7 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        sd.save(null);
+        ld.save();
         super.onPause();
     }
 
@@ -138,6 +139,6 @@ public class MainActivity extends AppCompatActivity {
 
     @NeedsPermission(GeoChecker.PERMISSION)
     protected void initGeo() {
-        sd.initGeo();
+        ld.initGeo();
     }
 }
