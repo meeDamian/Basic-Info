@@ -52,7 +52,7 @@ public class SimChecker extends PermChecker {
     }
 
     private void showSimChangedNotification(@NonNull Context c) {
-        String phoneNo = LocalData.getString(c, LocalData.PHONE);
+        String phoneNo = LocalData.getString(c, RemoteData.PHONE);
 
         NotificationCompat.Builder mBuilder =
             new NotificationCompat.Builder(c)

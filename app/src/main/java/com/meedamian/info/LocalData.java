@@ -9,11 +9,6 @@ import android.support.annotation.Nullable;
 import org.jetbrains.annotations.Contract;
 
 public class LocalData {
-    public static final String PHONE   = "phone";
-    public static final String COUNTRY = "country";
-    public static final String CITY    = "city";
-    public static final String VANITY  = "vanity";
-
 
     public static final String LOCATION      = "location";
     public static final String SUBSCRIBER_ID = "subscriber";
@@ -23,13 +18,22 @@ public class LocalData {
 
     private Context c;
 
-
     public LocalData(@NonNull Context context) {
         this.c = context;
     }
 
-    public void fetchFresh(@NonNull RemoteData.DataCallback dc) {
-        RemoteData.fetchFresh(c, dc);
+    public void fetchFresh(@NonNull final RemoteData.DataCallback dc) {
+        RemoteData.fetchFresh(c, new RemoteData.DataCallback() {
+            @Override
+            public void onDataReady(@Nullable String vanity, @Nullable String phone, @Nullable String country, @Nullable String city) {
+            putVanity(vanity);
+            putPhone(phone);
+            putCountry(country);
+            putCity(city);
+
+            dc.onDataReady(vanity, phone, country, city);
+            }
+        });
     }
 
     public String getPublicId() {
@@ -39,10 +43,42 @@ public class LocalData {
         return RemoteData.getPrettyUrl(c, vanity);
     }
 
+    public String getVanity() {
+        return getString(c, RemoteData.VANITY);
+    }
+    public void putVanity(@Nullable String vanity) {
+        if (vanity != null)
+            cacheString(c, RemoteData.VANITY, vanity);
+    }
+
+    public String getPhone() {
+        return getString(c, RemoteData.PHONE);
+    }
+    public void putPhone(@Nullable String phone) {
+        if (phone != null)
+            cacheString(c, RemoteData.PHONE, phone);
+    }
+
+    public String getCountry() {
+        return getString(c, RemoteData.COUNTRY);
+    }
+    public void putCountry(@Nullable String country) {
+        if (country != null)
+            cacheString(c, RemoteData.COUNTRY, country);
+    }
+    public String getCity() {
+        return getString(c, RemoteData.CITY);
+    }
+    public void putCity(String city) {
+        if(city != null)
+            cacheString(c, RemoteData.CITY, city);
+    }
 
     private void save(@Nullable String vanity, @Nullable String phone, @Nullable String country, @Nullable String city) {
-
-        // TODO: process and save
+        putVanity(vanity);
+        putPhone(phone);
+        putCountry(country);
+        putCity(city);
 
         RemoteData.upload(c, vanity, phone, country, city);
     }

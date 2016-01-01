@@ -21,7 +21,6 @@ import com.google.android.gms.maps.model.MarkerOptions;
 import com.meedamian.info.meh.SimpleTextWatcher;
 
 public class StateData extends BaseObservable {
-
     private LocalData  ld;
     private GeoChecker gc;
     private Context    c;
@@ -30,6 +29,11 @@ public class StateData extends BaseObservable {
         this.c = context;
         this.ld = ld;
         this.gc = gc;
+
+        setVanity(ld.getVanity());
+        setPhone(ld.getPhone());
+        setCountry(ld.getCountry());
+        setCity(ld.getCity());
 
         ld.fetchFresh(new RemoteData.DataCallback() {
             @Override

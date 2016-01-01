@@ -41,10 +41,10 @@ public class RemoteData {
 
                 JsonObject loc = locRaw.getAsJsonObject();
                 dc.onDataReady(
-                    getStringFromJson(result, LocalData.VANITY),
-                    getStringFromJson(result, LocalData.PHONE),
-                    getStringFromJson(loc,    LocalData.COUNTRY),
-                    getStringFromJson(loc,    LocalData.CITY)
+                    getStringFromJson(result, VANITY),
+                    getStringFromJson(result, PHONE),
+                    getStringFromJson(loc,    COUNTRY),
+                    getStringFromJson(loc,    CITY)
                 );
                 }
             });
@@ -55,10 +55,10 @@ public class RemoteData {
         jo.addProperty(KEY, RemoteData.getPrivateId(c));
 
         if (vanity != null)
-            jo.addProperty(VANITY,  vanity);
+            jo.addProperty(VANITY, vanity);
 
         if (phone != null)
-            jo.addProperty(PHONE,   phone);
+            jo.addProperty(PHONE, phone);
 
         if (country != null)
             jo.addProperty(COUNTRY, country);
@@ -83,7 +83,7 @@ public class RemoteData {
         return API_BASE_URL + getPublicId(c);
     }
     public static String getPrettyUrl(@NonNull Context c, @Nullable String vanity) {
-        return API_BASE_URL + (vanity != null ? vanity : RemoteData.getPublicId(c));
+        return API_BASE_URL + (vanity != null ? vanity : getPublicId(c));
     }
 
 

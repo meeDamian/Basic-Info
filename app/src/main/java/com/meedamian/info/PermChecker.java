@@ -18,7 +18,7 @@ public abstract class PermChecker {
     public static final int MISSING_LOCATION_PERM   = 111;
     public static final int MISSING_PHONE_PERM      = 222;
 
-    protected boolean isPermitted(Context c) {
+    protected boolean isPermitted(@NonNull Context c) {
         if (!PermissionUtils.hasSelfPermissions(c, getPermission())) {
             showPermissionNotification(c);
             return false;
