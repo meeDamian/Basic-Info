@@ -13,5 +13,5 @@
     <string name="permission_action_text">Grant</string>
     <string name="location_permission_content_text">No location permission granted.</string>
     <string name="phone_permission_content_text">Phone number change notifications disabled</string>
-    <string name="menu_settings">Settings</string>
+    <string name="menu_location">Reset to My Location</string>
 </resources>

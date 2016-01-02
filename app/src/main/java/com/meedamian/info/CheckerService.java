@@ -22,14 +22,10 @@ public class CheckerService extends Service {
         new GeoChecker(this).init(new GeoChecker.LocationAvailabler() {
             @Override
             public void onLocationAvailable(String country, String city) {
-            save(country, city);
+            LocalData.saveLocation(CheckerService.this, country, city);
             }
         });
 
         return super.onStartCommand(intent, flags, startId);
-    }
-
-    private void save(String country, String city) {
-        LocalData.saveLocation(this, country, city);
     }
 }

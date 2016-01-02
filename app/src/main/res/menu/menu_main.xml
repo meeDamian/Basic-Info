@@ -5,9 +5,9 @@
       tools:context=".MainActivity">
 
     <item
-        android:id="@+id/settings"
-        android:title="@string/menu_settings"
+        android:id="@+id/location"
+        android:title="@string/menu_location"
         app:showAsAction="always"
-        android:icon="@drawable/ic_settings_black_24dp" />
+        android:icon="@drawable/ic_my_location_black_24dp" />
 
 </menu>

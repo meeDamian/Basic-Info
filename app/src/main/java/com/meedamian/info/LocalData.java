@@ -28,10 +28,11 @@ public class LocalData {
         this.sd = stateData;
         this.gc = geoChecker;
 
+        // pre-populate interface from local storage
         sd.setPhone(getPhone());
         sd.setVanity(getVanity());
         sd.setCountry(getCountry());
-        sd.setCountry(getCity());
+        sd.setCity(getCity());
 
         sd.vanityHint.set(RemoteData.getPublicId(context));
         sd.prettyUrl.set(RemoteData.getPrettyUrl(c, getVanity()));
@@ -53,14 +54,15 @@ public class LocalData {
 
             putPhone(phone);
             sd.setPhone(phone);
+            sd.enableUserFields();
 
+
+            // TODO: should those even be set here?
             putCountry(country);
             sd.setCountry(country);
 
             putCity(city);
             sd.setCity(city);
-
-            sd.enableUserFields();
             }
         });
     }
@@ -139,12 +141,14 @@ public class LocalData {
         gc.init(new GeoChecker.LocationAvailabler() {
             @Override
             public void onLocationAvailable(String country, String city) {
-            sd.setCountry(country);
-            sd.setCity(city);
-            sd.setPosition(gc.getCoords(country, city));
-            sd.enableLocationFields();
+            saveLocation(c, country, city);
+            sd.setLocation(country, city);
             }
         });
+    }
+
+    public void refreshLocation(GeoChecker.LocationAvailabler la) {
+        gc.getNewLocation(la);
     }
 
     public static void saveLocation(@NonNull Context c, @NonNull String country, @NonNull String city) {
@@ -171,7 +175,6 @@ public class LocalData {
             .apply();
     }
 
-    // Magical helpers
     @Contract(pure = true)
     private static String getUpdatesKey(@NonNull String key) {
         return key + KEY_UPDATED_SUFFIX;

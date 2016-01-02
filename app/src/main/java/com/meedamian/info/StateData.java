@@ -83,6 +83,13 @@ public class StateData extends BaseObservable {
         }
     };
 
+    public void setLocation(String country, String city) {
+        setCountry(country);
+        setCity(city);
+        setPosition(GeoChecker.getCoords(c, country, city));
+        enableLocationFields();
+    }
+
 
     // (Two-way) Data-Binding of PHONE
     private String phone;
