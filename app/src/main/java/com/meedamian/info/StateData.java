@@ -143,15 +143,17 @@ public class StateData extends BaseObservable {
     private GoogleMap googleMap;
     public void setGoogleMap(GoogleMap googleMap) {
         this.googleMap = googleMap;
-        stupidChecker();
+        tryToAddMarker();
     }
     private LatLng position;
     public void setPosition(LatLng latLng) {
         this.position = latLng;
-        stupidChecker();
+        tryToAddMarker();
     }
-    private void stupidChecker() {
+    private void tryToAddMarker() {
         if (googleMap != null && position != null) {
+            googleMap.clear();
+
             googleMap.addMarker(new MarkerOptions()
                 .position(position)
                 .title(GeoChecker.getLocationQuery(getCountry(), getCity())));
