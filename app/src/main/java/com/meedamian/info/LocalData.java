@@ -159,6 +159,7 @@ public class LocalData implements GeoChecker.LocationAvailabler {
         });
     }
 
+
     public void refreshLocation() {
         gc.getNewLocation(this);
     }

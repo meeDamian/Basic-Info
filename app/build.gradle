@@ -1,5 +1,14 @@
 apply plugin: 'com.android.application'
+apply plugin: 'com.github.triplet.play'
 apply plugin: 'android-apt'
+
+apply from: '../incrementAndExport.gradle'
+
+
+play {
+    serviceAccountEmail = safeGet('PLAY_EMAIL')
+    pk12File            = safeGetFile('PLAY_KEY')
+}
 
 android {
     compileSdkVersion 23
@@ -9,18 +18,40 @@ android {
         applicationId "com.meedamian.info"
         minSdkVersion 17
         targetSdkVersion 23
-        versionCode 1
-        versionName "1.0"
+
+        versionCode getVersionCode() as Integer
+        versionName getVersionName() as String
     }
 
     dataBinding {
         enabled = true
     }
 
-    buildTypes {
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_7
+        targetCompatibility JavaVersion.VERSION_1_7
+    }
+
+    signingConfigs {
         release {
-            minifyEnabled false
+            storeFile       safeGetFile('STORE_FILE') as File
+            storePassword   safeGet('STORE_PASSWORD') as String
+            keyAlias        safeGet('KEY_ALIAS') as String
+            keyPassword     safeGet('KEY_PASSWORD', safeGet('STORE_PASSWORD')) as String
+        }
+    }
+
+    buildTypes {
+        debug {
+            versionNameSuffix "-SNAPSHOT"
+        }
+        release {
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release as Object
+            minifyEnabled true
+            zipAlignEnabled true
+            shrinkResources true
         }
     }
 }
