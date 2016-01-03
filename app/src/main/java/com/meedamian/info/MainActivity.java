@@ -58,10 +58,10 @@ public class MainActivity extends AppCompatActivity {
         mapFragment.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap googleMap) {
-                googleMap.getUiSettings().setAllGesturesEnabled(false);
-                googleMap.getUiSettings().setZoomControlsEnabled(true);
+            googleMap.getUiSettings().setAllGesturesEnabled(false);
+            googleMap.getUiSettings().setZoomControlsEnabled(true);
 
-                sd.setGoogleMap(googleMap);
+            sd.setGoogleMap(googleMap);
             }
         });
 
