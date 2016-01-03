@@ -3,11 +3,13 @@ package com.meedamian.info;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 
 import com.example.julian.locationservice.GeoChecker;
 import com.google.android.gms.maps.GoogleMap;
@@ -33,6 +35,16 @@ public class MainActivity extends AppCompatActivity {
         final StateData sd = new StateData(this);
         amb.setState(sd);
 
+        if(!RemoteData.isNetworkAvailable(this)){
+            Snackbar.make(findViewById(R.id.coordinatorLayout),
+                    "No Internet Connection", Snackbar.LENGTH_INDEFINITE)
+                    .setAction("RETRY", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                        }
+                    })
+                    .show();
+        }
 
         // Bootstrap model
         ld = new LocalData(this, sd, new GeoChecker(this));
@@ -58,7 +70,6 @@ public class MainActivity extends AppCompatActivity {
             sd.setGoogleMap(googleMap);
             }
         });
-
 
         MainActivityPermissionsDispatcher.initSimWithCheck(this);
         MainActivityPermissionsDispatcher.initGeoWithCheck(this);
