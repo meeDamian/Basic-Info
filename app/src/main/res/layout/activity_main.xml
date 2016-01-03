@@ -8,7 +8,8 @@
             type="com.meedamian.info.StateData" />
     </data>
 
-    <FrameLayout
+    <android.support.design.widget.CoordinatorLayout
+        android:id="@+id/coordinatorLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipChildren="false"
@@ -158,5 +159,5 @@
             android:tint="@android:color/white"
             android:src="@drawable/ic_save_black_24dp" />
 
-    </FrameLayout>
+    </android.support.design.widget.CoordinatorLayout>
 </layout>

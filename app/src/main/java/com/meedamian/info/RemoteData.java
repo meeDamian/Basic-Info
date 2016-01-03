@@ -52,7 +52,6 @@ public class RemoteData {
                 }
             });
         }
-
     }
 
     static public boolean isNetworkAvailable(Context c){

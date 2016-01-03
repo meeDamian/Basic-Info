@@ -4,9 +4,11 @@ package com.meedamian.info;
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
+import android.support.design.widget.Snackbar;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.View;
 
 import com.example.julian.locationservice.GeoChecker;
 import com.google.android.gms.maps.GoogleMap;
@@ -31,6 +33,16 @@ public class MainActivity extends AppCompatActivity {
         sd = new StateData(this, new LocalData(this), new GeoChecker(this));
         amb.setState(sd);
 
+        if(!RemoteData.isNetworkAvailable(this)){
+            Snackbar.make(findViewById(R.id.coordinatorLayout),
+                    "No Internet Connection", Snackbar.LENGTH_INDEFINITE)
+                    .setAction("RETRY", new View.OnClickListener() {
+                        @Override
+                        public void onClick(View v) {
+                        }
+                    })
+                    .show();
+        }
 
         // Config Toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
@@ -46,13 +58,12 @@ public class MainActivity extends AppCompatActivity {
         mapFragment.getMapAsync(new OnMapReadyCallback() {
             @Override
             public void onMapReady(GoogleMap googleMap) {
-            googleMap.getUiSettings().setAllGesturesEnabled(false);
-            googleMap.getUiSettings().setZoomControlsEnabled(true);
+                googleMap.getUiSettings().setAllGesturesEnabled(false);
+                googleMap.getUiSettings().setZoomControlsEnabled(true);
 
-            sd.setGoogleMap(googleMap);
+                sd.setGoogleMap(googleMap);
             }
         });
-
 
         MainActivityPermissionsDispatcher.initSimWithCheck(this);
         MainActivityPermissionsDispatcher.initGeoWithCheck(this);
