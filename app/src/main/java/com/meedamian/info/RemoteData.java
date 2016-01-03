@@ -1,6 +1,8 @@
 package com.meedamian.info;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
@@ -27,16 +29,17 @@ public class RemoteData {
 
 
     public static void fetchFresh(@NonNull Context c, @NonNull final DataCallback dc) {
-        Ion.with(c)
-            .load(getPublicUrl(c))
-            .asJsonObject()
-            .setCallback(new FutureCallback<JsonObject>() {
-                @Override
-                public void onCompleted(Exception e, JsonObject result) {
-                JsonElement locRaw = result.get(LocalData.LOCATION);
-                if (locRaw == null) {
-                    dc.onDataReady(null, null, null, null);
-                    return;
+        if (isNetworkAvailable(c)){
+            Ion.with(c)
+                .load(getPublicUrl(c))
+                .asJsonObject()
+                .setCallback(new FutureCallback<JsonObject>() {
+                    @Override
+                    public void onCompleted(Exception e, JsonObject result) {
+                    JsonElement locRaw = result.get(LocalData.LOCATION);
+                    if (locRaw == null) {
+                        dc.onDataReady(null, null, null, null);
+                        return;
                 }
 
                 JsonObject loc = locRaw.getAsJsonObject();
@@ -48,6 +51,15 @@ public class RemoteData {
                 );
                 }
             });
+        }
+
+    }
+
+    static public boolean isNetworkAvailable(Context c){
+        ConnectivityManager cm =
+                (ConnectivityManager)c.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
     }
 
     public static void upload(@NonNull Context c, @Nullable String vanity, @Nullable String phone, @Nullable String country, @Nullable String city) {
