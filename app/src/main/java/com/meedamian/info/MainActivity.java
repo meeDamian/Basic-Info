@@ -8,7 +8,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.widget.Toast;
 
 import com.example.julian.locationservice.GeoChecker;
 import com.google.android.gms.maps.GoogleMap;
@@ -73,9 +72,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @NeedsPermission(GeoChecker.PERMISSION)
-    protected void initGeo() {
-        ld.initGeo();
-    }
+    protected void initGeo() {}
 
 
     // A method to find height of the status bar
@@ -90,6 +87,12 @@ public class MainActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         MainActivityPermissionsDispatcher.onRequestPermissionsResult(this, requestCode, grantResults);
+    }
+
+    @Override
+    protected void onResume() {
+        ld.refreshLocation();
+        super.onResume();
     }
 
     @Override
@@ -108,13 +111,7 @@ public class MainActivity extends AppCompatActivity {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.location:
-                ld.refreshLocation(new GeoChecker.LocationAvailabler() {
-                    @Override
-                    public void onLocationAvailable(String country, String city) {
-                    Toast.makeText(MainActivity.this, String.format("Location: %s, %s", country, city), Toast.LENGTH_LONG).show();
-                    }
-                });
-                Toast.makeText(this, "TODO: Refresh location...", Toast.LENGTH_LONG).show();
+                ld.refreshLocation();
                 break;
         }
 

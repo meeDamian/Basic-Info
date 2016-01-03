@@ -19,12 +19,14 @@ public class CheckerService extends Service {
 
         new SimChecker(this);
 
-        new GeoChecker(this).init(new GeoChecker.LocationAvailabler() {
-            @Override
-            public void onLocationAvailable(String country, String city) {
-            LocalData.saveLocation(CheckerService.this, country, city);
-            }
-        });
+        new GeoChecker(this)
+            .getNewLocation(new GeoChecker.LocationAvailabler() {
+                @Override
+                public void onLocationAvailable(String country, String city) {
+                if (country != null && city != null)
+                    LocalData.saveLocation(CheckerService.this, country, city);
+                }
+            });
 
         return super.onStartCommand(intent, flags, startId);
     }

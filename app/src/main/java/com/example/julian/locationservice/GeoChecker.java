@@ -2,20 +2,17 @@ package com.example.julian.locationservice;
 
 import android.Manifest;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.ActivityCompat;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
-import com.meedamian.info.LocalData;
 import com.meedamian.info.PermChecker;
 import com.meedamian.info.R;
 
@@ -37,16 +34,8 @@ public class GeoChecker extends PermChecker implements
 
     public GeoChecker(Context context) {
         c = context;
+        buildGoogleApiClient(c).connect();
     }
-
-
-    public void init(LocationAvailabler la) {
-        if (la != null && isPermitted(c)) {
-            this.la = la;
-            buildGoogleApiClient(c).connect();
-        }
-    }
-
 
     protected synchronized GoogleApiClient buildGoogleApiClient(Context c) {
         if (mGoogleApiClient != null)
@@ -61,20 +50,31 @@ public class GeoChecker extends PermChecker implements
 
     @Override
     public void onConnected(Bundle bundle) {
-        getNewLocation(la);
+        if (la != null)
+            getNewLocation(la);
     }
-
     @Override public void onConnectionSuspended(int i) {}
-    @Override public void onConnectionFailed(ConnectionResult connectionResult) {}
+    @Override public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {}
 
-    public void getNewLocation(LocationAvailabler localCallback) {
-        Address a = getAddress(c, LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient));
-        if (a != null && la != null) {
-            localCallback.onLocationAvailable(
-                a.getCountryName(),
-                a.getLocality()
-            );
+    public void getNewLocation(@Nullable LocationAvailabler localCallback) {
+        isPermitted(c);
+
+        if (!mGoogleApiClient.isConnected()) {
+            this.la = localCallback;
+            return;
         }
+
+        Address a = getAddress(c, LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient));
+
+        String country = null;
+        String city = null;
+        if (a != null) {
+            country = a.getCountryName();
+            city = a.getLocality();
+        }
+
+        if (localCallback != null)
+            localCallback.onLocationAvailable(country, city);
     }
 
     @Contract(value = "!null, null -> null", pure = true)
@@ -149,6 +149,6 @@ public class GeoChecker extends PermChecker implements
 
 
     public interface LocationAvailabler {
-        void onLocationAvailable(String country, String city);
+        void onLocationAvailable(@Nullable String country, @Nullable String city);
     }
 }

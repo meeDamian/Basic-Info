@@ -11,7 +11,7 @@ import com.example.julian.locationservice.GeoChecker;
 
 import org.jetbrains.annotations.Contract;
 
-public class LocalData {
+public class LocalData implements GeoChecker.LocationAvailabler {
 
     public static final String LOCATION      = "location";
     public static final String SUBSCRIBER_ID = "subscriber";
@@ -137,19 +137,10 @@ public class LocalData {
         RemoteData.upload(c, vanity, phone, country, city);
     }
 
-    public void initGeo() {
-        gc.init(new GeoChecker.LocationAvailabler() {
-            @Override
-            public void onLocationAvailable(String country, String city) {
-            saveLocation(c, country, city);
-            sd.setLocation(country, city);
-            }
-        });
+    public void refreshLocation() {
+        gc.getNewLocation(this);
     }
 
-    public void refreshLocation(GeoChecker.LocationAvailabler la) {
-        gc.getNewLocation(la);
-    }
 
     public static void saveLocation(@NonNull Context c, @NonNull String country, @NonNull String city) {
         putCountry(c, country);
@@ -157,6 +148,13 @@ public class LocalData {
         RemoteData.upload(c, null, null, country, city);
     }
 
+    @Override
+    public void onLocationAvailable(@Nullable String country, @Nullable String city) {
+        if (country != null && city != null) {
+            saveLocation(c, country, city);
+            sd.setLocation(country, city);
+        }
+    }
 
     // Shared Preferences stuff
     private static SharedPreferences getSp(Context c) {
