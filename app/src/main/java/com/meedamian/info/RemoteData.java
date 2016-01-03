@@ -6,7 +6,6 @@ import android.net.NetworkInfo;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -58,7 +57,13 @@ public class RemoteData {
 
     }
 
-    public static void upload(@NonNull Context c, @Nullable String vanity, @Nullable String phone, @Nullable String country, @Nullable String city) {
+    public static void upload(@NonNull Context c,
+                              @Nullable String vanity,
+                              @Nullable String phone,
+                              @Nullable String country,
+                              @Nullable String city,
+                              final @Nullable SaveCallback sc) {
+
         JsonObject jo = new JsonObject();
         jo.addProperty(KEY, RemoteData.getPrivateId(c));
 
@@ -81,8 +86,13 @@ public class RemoteData {
             .setCallback(new FutureCallback<String>() {
                 @Override
                 public void onCompleted(Exception e, @Nullable String result) {
+                if (sc == null)
+                    return;
+
                 if (result != null)
-                    Log.d("Basic Data", result);
+                    sc.onSave();
+                else
+                    sc.onError();
                 }
             });
     }
@@ -130,13 +140,20 @@ public class RemoteData {
         }
     }
 
-    public interface DataCallback {
-        void onError();
+    public interface DataCallback extends ErrorCallback {
         void onDataReady(
             @Nullable String vanity,
             @Nullable String phone,
             @Nullable String country,
             @Nullable String city
         );
+    }
+
+    public interface SaveCallback extends ErrorCallback {
+        void onSave();
+    }
+
+    private interface ErrorCallback {
+        void onError();
     }
 }

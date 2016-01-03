@@ -161,7 +161,11 @@ public class StateData extends BaseObservable {
     }
 
     public void showSnackbar(@StringRes int text, @Nullable @StringRes Integer actionName, @Nullable View.OnClickListener actionCallback) {
-        Snackbar snackbar = Snackbar.make(rootView, text, Snackbar.LENGTH_INDEFINITE);
+        int length = actionName == null && actionCallback == null
+            ? Snackbar.LENGTH_SHORT
+            : Snackbar.LENGTH_INDEFINITE;
+
+        Snackbar snackbar = Snackbar.make(rootView, text, length);
         if (actionName != null && actionCallback != null)
             snackbar.setAction(actionName, actionCallback);
 
@@ -194,6 +198,16 @@ public class StateData extends BaseObservable {
     }
 
     public void save(@Nullable View v) {
-        LocalData.saveUserEdits(c, getVanity(), getPhone(), getCountry(), getCity());
+        LocalData.saveUserEdits(c, getVanity(), getPhone(), getCountry(), getCity(), new RemoteData.SaveCallback() {
+            @Override
+            public void onSave() {
+                showSnackbar(R.string.snackbar_saved, null, null);
+            }
+
+            @Override
+            public void onError() {
+                showSnackbar(R.string.snackbar_saved, null, null);
+            }
+        });
     }
 }

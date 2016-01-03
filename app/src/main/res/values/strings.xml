@@ -14,6 +14,10 @@
     <string name="location_permission_content_text">No location permission granted.</string>
     <string name="phone_permission_content_text">Phone number change notifications disabled</string>
     <string name="menu_location">Reset to My Location</string>
+
     <string name="snackbar_nointernet_text">No Internet Connection.</string>
     <string name="snackbar_nointernet_action">RETRY</string>
+
+    <string name="snackbar_saved">Saved.</string>
+    <string name="snackbar_save_error">Save failed.</string>
 </resources>

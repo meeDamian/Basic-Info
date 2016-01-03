@@ -103,10 +103,16 @@ public class LocalData implements GeoChecker.LocationAvailabler {
             sd.getVanity(),
             sd.getPhone(),
             sd.getCountry(),
-            sd.getCity()
+            sd.getCity(),
+            null
         );
     }
-    public static void saveUserEdits(@NonNull Context c, @Nullable String vanity, @Nullable String phone, @Nullable String country, @Nullable String city) {
+    public static void saveUserEdits(@NonNull Context c,
+                                     @Nullable String vanity,
+                                     @Nullable String phone,
+                                     @Nullable String country,
+                                     @Nullable String city,
+                                     @Nullable RemoteData.SaveCallback sc) {
         putVanity(c, vanity);
         putPhone(c, phone);
 
@@ -120,7 +126,7 @@ public class LocalData implements GeoChecker.LocationAvailabler {
 
 
         // TODO: cache values only on success
-        RemoteData.upload(c, vanity, phone, country, city);
+        RemoteData.upload(c, vanity, phone, country, city, sc);
     }
 
     public void refreshData() {
@@ -166,7 +172,7 @@ public class LocalData implements GeoChecker.LocationAvailabler {
     public static void saveLocation(@NonNull Context c, @NonNull String country, @NonNull String city) {
         putCountry(c, country);
         putCity(c, city);
-        RemoteData.upload(c, null, null, country, city);
+        RemoteData.upload(c, null, null, country, city, null);
     }
     @Override
     public void onLocationAvailable(@Nullable String country, @Nullable String city) {
