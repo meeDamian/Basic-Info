@@ -90,12 +90,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
-        ld.refreshLocation();
-        super.onResume();
-    }
-
-    @Override
     protected void onPause() {
         ld.save();
         super.onPause();

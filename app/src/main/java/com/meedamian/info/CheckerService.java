@@ -16,7 +16,6 @@ public class CheckerService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-
         new SimChecker(this);
 
         new GeoChecker(this)

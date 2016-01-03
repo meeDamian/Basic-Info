@@ -150,10 +150,8 @@ public class LocalData implements GeoChecker.LocationAvailabler {
 
     @Override
     public void onLocationAvailable(@Nullable String country, @Nullable String city) {
-        if (country != null && city != null) {
-            saveLocation(c, country, city);
+        if (country != null && city != null)
             sd.setLocation(country, city);
-        }
     }
 
     // Shared Preferences stuff

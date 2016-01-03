@@ -61,6 +61,10 @@ public class StateData extends BaseObservable {
         setCountryAtomic(newCountry);
         }
     };
+    public void onCountryFocusChange(View v, boolean hasFocus) {
+        if (!hasFocus)
+            setPositionFrom(getCountry(), getCity());
+    }
 
 
     // (Two-way) Data-Binding of CITY
@@ -82,11 +86,15 @@ public class StateData extends BaseObservable {
         setCityAtomic(newCity);
         }
     };
+    public void onCityFocusChange(View v, boolean hasFocus) {
+        if (!hasFocus)
+            setPositionFrom(getCountry(), getCity());
+    }
 
     public void setLocation(String country, String city) {
         setCountry(country);
         setCity(city);
-        setPosition(GeoChecker.getCoords(c, country, city));
+        setPositionFrom(country, city);
         enableLocationFields();
     }
 
@@ -156,6 +164,9 @@ public class StateData extends BaseObservable {
     public void setPosition(LatLng latLng) {
         this.position = latLng;
         tryToAddMarker();
+    }
+    public void setPositionFrom(String country, String city) {
+        setPosition(GeoChecker.getCoords(c, country, city));
     }
     private void tryToAddMarker() {
         if (googleMap != null && position != null) {

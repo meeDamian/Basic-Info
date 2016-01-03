@@ -58,6 +58,7 @@
                             android:text="@{state.country}"
                             android:enabled="@{state.locationFieldsEnabled}"
                             android:addTextChangedListener="@{state.onCountryChanged}"
+                            android:onFocusChange="@{state.onCountryFocusChange}"
                             android:inputType="textCapWords" />
 
                     </android.support.design.widget.TextInputLayout>
@@ -76,6 +77,7 @@
                             android:text="@{state.city}"
                             android:enabled="@{state.locationFieldsEnabled}"
                             android:addTextChangedListener="@{state.onCityChanged}"
+                            android:onFocusChange="@{state.onCityFocusChange}"
                             android:inputType="textCapWords" />
 
                     </android.support.design.widget.TextInputLayout>
