@@ -9,6 +9,8 @@ import android.databinding.ObservableBoolean;
 import android.databinding.ObservableField;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
+import android.support.design.widget.Snackbar;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
@@ -24,9 +26,13 @@ import com.meedamian.info.meh.SimpleTextWatcher;
 public class StateData extends BaseObservable {
 
     private Context c;
+    private View rootView;
 
     public StateData(Context context) {
         this.c = context;
+    }
+    public void setRootView(View v) {
+        this.rootView = v;
     }
 
     public final ObservableBoolean userFieldsEnabled = new ObservableBoolean();
@@ -154,6 +160,13 @@ public class StateData extends BaseObservable {
         Toast.makeText(c, "URL copied to clipboard", Toast.LENGTH_LONG).show();
     }
 
+    public void showSnackbar(@StringRes int text, @Nullable @StringRes Integer actionName, @Nullable View.OnClickListener actionCallback) {
+        Snackbar snackbar = Snackbar.make(rootView, text, Snackbar.LENGTH_INDEFINITE);
+        if (actionName != null && actionCallback != null)
+            snackbar.setAction(actionName, actionCallback);
+
+        snackbar.show();
+    }
 
     private GoogleMap googleMap;
     public void setGoogleMap(GoogleMap googleMap) {

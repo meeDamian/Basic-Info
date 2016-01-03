@@ -6,6 +6,7 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.view.View;
 
 import com.example.julian.locationservice.GeoChecker;
 
@@ -45,26 +46,10 @@ public class LocalData implements GeoChecker.LocationAvailabler {
             }
         }, 4000);
 
-        RemoteData.fetchFresh(c, new RemoteData.DataCallback() {
-            @Override
-            public void onDataReady(@Nullable String vanity, @Nullable String phone, @Nullable String country, @Nullable String city) {
-            putVanity(vanity);
-            sd.setVanity(vanity);
-            sd.prettyUrl.set(RemoteData.getPrettyUrl(c, vanity));
-
-            putPhone(phone);
-            sd.setPhone(phone);
-            sd.enableUserFields();
-
-
-            // TODO: should those even be set here?
-            putCountry(country);
-            sd.setCountry(country);
-
-            putCity(city);
-            sd.setCity(city);
-            }
-        });
+        if(RemoteData.isNetworkAvailable(c))
+            refreshData();
+        else
+            retrySnackbar();
     }
 
     public String getVanity() {
@@ -111,6 +96,8 @@ public class LocalData implements GeoChecker.LocationAvailabler {
             cacheString(c, RemoteData.CITY, city);
     }
 
+
+
     public void save() {
         saveUserEdits(c,
             sd.getVanity(),
@@ -119,7 +106,6 @@ public class LocalData implements GeoChecker.LocationAvailabler {
             sd.getCity()
         );
     }
-
     public static void saveUserEdits(@NonNull Context c, @Nullable String vanity, @Nullable String phone, @Nullable String country, @Nullable String city) {
         putVanity(c, vanity);
         putPhone(c, phone);
@@ -137,22 +123,57 @@ public class LocalData implements GeoChecker.LocationAvailabler {
         RemoteData.upload(c, vanity, phone, country, city);
     }
 
+    public void refreshData() {
+        RemoteData.fetchFresh(c, new RemoteData.DataCallback() {
+            @Override
+            public void onDataReady(@Nullable String vanity, @Nullable String phone, @Nullable String country, @Nullable String city) {
+                putVanity(vanity);
+                sd.setVanity(vanity);
+                sd.prettyUrl.set(RemoteData.getPrettyUrl(c, vanity));
+
+                putPhone(phone);
+                sd.setPhone(phone);
+                sd.enableUserFields();
+
+
+                // TODO: should those even be set here?
+                putCountry(country);
+                sd.setCountry(country);
+
+                putCity(city);
+                sd.setCity(city);
+            }
+
+            @Override
+            public void onError() {
+                retrySnackbar();
+            }
+        });
+    }
+    private void retrySnackbar() {
+        sd.showSnackbar(R.string.snackbar_nointernet_text, R.string.snackbar_nointernet_action, new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            refreshData();
+            }
+        });
+    }
+
     public void refreshLocation() {
         gc.getNewLocation(this);
     }
-
-
     public static void saveLocation(@NonNull Context c, @NonNull String country, @NonNull String city) {
         putCountry(c, country);
         putCity(c, city);
         RemoteData.upload(c, null, null, country, city);
     }
-
     @Override
     public void onLocationAvailable(@Nullable String country, @Nullable String city) {
         if (country != null && city != null)
             sd.setLocation(country, city);
     }
+
+
 
     // Shared Preferences stuff
     private static SharedPreferences getSp(Context c) {
@@ -170,6 +191,8 @@ public class LocalData implements GeoChecker.LocationAvailabler {
             .putLong(getUpdatesKey(key), System.currentTimeMillis())
             .apply();
     }
+
+
 
     @Contract(pure = true)
     private static String getUpdatesKey(@NonNull String key) {

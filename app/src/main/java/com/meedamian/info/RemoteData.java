@@ -29,36 +29,33 @@ public class RemoteData {
 
 
     public static void fetchFresh(@NonNull Context c, @NonNull final DataCallback dc) {
-        if (isNetworkAvailable(c)){
-            Ion.with(c)
-                .load(getPublicUrl(c))
-                .asJsonObject()
-                .setCallback(new FutureCallback<JsonObject>() {
-                    @Override
-                    public void onCompleted(Exception e, JsonObject result) {
-                    JsonElement locRaw = result.get(LocalData.LOCATION);
-                    if (locRaw == null) {
-                        dc.onDataReady(null, null, null, null);
-                        return;
+        Ion.with(c)
+            .load(getPublicUrl(c))
+            .asJsonObject()
+            .setCallback(new FutureCallback<JsonObject>() {
+                @Override
+                public void onCompleted(Exception e, JsonObject result) {
+                if (result == null) {
+                    dc.onError();
+                    return;
+                }
+
+                JsonElement locRaw = result.get(LocalData.LOCATION);
+                if (locRaw == null) {
+                    dc.onError();
+                    return;
                 }
 
                 JsonObject loc = locRaw.getAsJsonObject();
                 dc.onDataReady(
                     getStringFromJson(result, VANITY),
                     getStringFromJson(result, PHONE),
-                    getStringFromJson(loc,    COUNTRY),
-                    getStringFromJson(loc,    CITY)
+                    getStringFromJson(loc, COUNTRY),
+                    getStringFromJson(loc, CITY)
                 );
-                }
-            });
-        }
-    }
+            }
+        });
 
-    static public boolean isNetworkAvailable(Context c){
-        ConnectivityManager cm =
-                (ConnectivityManager)c.getSystemService(Context.CONNECTIVITY_SERVICE);
-        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
-        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
     }
 
     public static void upload(@NonNull Context c, @Nullable String vanity, @Nullable String phone, @Nullable String country, @Nullable String city) {
@@ -88,6 +85,14 @@ public class RemoteData {
                     Log.d("Basic Data", result);
                 }
             });
+    }
+
+
+
+    static public boolean isNetworkAvailable(Context c) {
+        ConnectivityManager cm = (ConnectivityManager) c.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
     }
 
     public static String getPublicUrl(@NonNull Context c) {
@@ -126,6 +131,7 @@ public class RemoteData {
     }
 
     public interface DataCallback {
+        void onError();
         void onDataReady(
             @Nullable String vanity,
             @Nullable String phone,
