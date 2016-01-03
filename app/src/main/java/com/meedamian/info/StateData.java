@@ -160,9 +160,9 @@ public class StateData extends BaseObservable {
         Toast.makeText(c, "URL copied to clipboard", Toast.LENGTH_LONG).show();
     }
 
-    public void showSnackbar(@StringRes int text, @Nullable @StringRes Integer actionName, @Nullable View.OnClickListener actionCallback) {
+    public void showSnackbar(@StringRes String text, @Nullable @StringRes String actionName, @Nullable View.OnClickListener actionCallback) {
         int length = actionName == null && actionCallback == null
-            ? Snackbar.LENGTH_SHORT
+            ? Snackbar.LENGTH_LONG
             : Snackbar.LENGTH_INDEFINITE;
 
         Snackbar snackbar = Snackbar.make(rootView, text, length);
@@ -201,12 +201,12 @@ public class StateData extends BaseObservable {
         LocalData.saveUserEdits(c, getVanity(), getPhone(), getCountry(), getCity(), new RemoteData.SaveCallback() {
             @Override
             public void onSave() {
-                showSnackbar(R.string.snackbar_saved, null, null);
+                showSnackbar(c.getString(R.string.snackbar_saved), null, null);
             }
 
             @Override
-            public void onError() {
-                showSnackbar(R.string.snackbar_saved, null, null);
+            public void onError(String msg) {
+                showSnackbar(c.getString(R.string.snackbar_save_error, msg), null, null);
             }
         });
     }

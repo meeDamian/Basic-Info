@@ -157,7 +157,10 @@ public class LocalData implements GeoChecker.LocationAvailabler {
         });
     }
     private void retrySnackbar() {
-        sd.showSnackbar(R.string.snackbar_nointernet_text, R.string.snackbar_nointernet_action, new View.OnClickListener() {
+        sd.showSnackbar(
+            c.getString(R.string.snackbar_nointernet_text),
+            c.getString(R.string.snackbar_nointernet_action),
+            new View.OnClickListener() {
             @Override
             public void onClick(View v) {
             refreshData();

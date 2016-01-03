@@ -19,5 +19,5 @@
     <string name="snackbar_nointernet_action">RETRY</string>
 
     <string name="snackbar_saved">Saved.</string>
-    <string name="snackbar_save_error">Save failed.</string>
+    <string name="snackbar_save_error">Save failed (%s).</string>
 </resources>

@@ -89,11 +89,18 @@ public class RemoteData {
                 if (sc == null)
                     return;
 
-                if (result != null)
-                    sc.onSave();
-                else
-                    sc.onError();
+                if (result != null) {
+                    // TODO: fix on the server side
+                    result = result.replace("\"", "");
+                    if (result.equals("updated")) {
+                        sc.onSave();
+                        return;
+                    }
                 }
+
+                sc.onError(result);
+                }
+
             });
     }
 
@@ -140,7 +147,8 @@ public class RemoteData {
         }
     }
 
-    public interface DataCallback extends ErrorCallback {
+    public interface DataCallback {
+        void onError();
         void onDataReady(
             @Nullable String vanity,
             @Nullable String phone,
@@ -149,11 +157,8 @@ public class RemoteData {
         );
     }
 
-    public interface SaveCallback extends ErrorCallback {
+    public interface SaveCallback {
         void onSave();
-    }
-
-    private interface ErrorCallback {
-        void onError();
+        void onError(String msg);
     }
 }
