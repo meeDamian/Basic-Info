@@ -6,12 +6,13 @@ import android.os.Handler;
 import android.preference.PreferenceManager;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.view.View;
 
 import com.example.julian.locationservice.GeoChecker;
 
 import org.jetbrains.annotations.Contract;
 
-public class LocalData {
+public class LocalData implements GeoChecker.LocationAvailabler {
 
     public static final String LOCATION      = "location";
     public static final String SUBSCRIBER_ID = "subscriber";
@@ -28,10 +29,11 @@ public class LocalData {
         this.sd = stateData;
         this.gc = geoChecker;
 
+        // pre-populate interface from local storage
         sd.setPhone(getPhone());
         sd.setVanity(getVanity());
         sd.setCountry(getCountry());
-        sd.setCountry(getCity());
+        sd.setCity(getCity());
 
         sd.vanityHint.set(RemoteData.getPublicId(context));
         sd.prettyUrl.set(RemoteData.getPrettyUrl(c, getVanity()));
@@ -44,25 +46,10 @@ public class LocalData {
             }
         }, 4000);
 
-        RemoteData.fetchFresh(c, new RemoteData.DataCallback() {
-            @Override
-            public void onDataReady(@Nullable String vanity, @Nullable String phone, @Nullable String country, @Nullable String city) {
-            putVanity(vanity);
-            sd.setVanity(vanity);
-            sd.prettyUrl.set(RemoteData.getPrettyUrl(c, vanity));
-
-            putPhone(phone);
-            sd.setPhone(phone);
-
-            putCountry(country);
-            sd.setCountry(country);
-
-            putCity(city);
-            sd.setCity(city);
-
-            sd.enableUserFields();
-            }
-        });
+        if(RemoteData.isNetworkAvailable(c))
+            refreshData();
+        else
+            retrySnackbar();
     }
 
     public String getVanity() {
@@ -109,16 +96,23 @@ public class LocalData {
             cacheString(c, RemoteData.CITY, city);
     }
 
+
+
     public void save() {
         saveUserEdits(c,
             sd.getVanity(),
             sd.getPhone(),
             sd.getCountry(),
-            sd.getCity()
+            sd.getCity(),
+            null
         );
     }
-
-    public static void saveUserEdits(@NonNull Context c, @Nullable String vanity, @Nullable String phone, @Nullable String country, @Nullable String city) {
+    public static void saveUserEdits(@NonNull Context c,
+                                     @Nullable String vanity,
+                                     @Nullable String phone,
+                                     @Nullable String country,
+                                     @Nullable String city,
+                                     @Nullable RemoteData.SaveCallback sc) {
         putVanity(c, vanity);
         putPhone(c, phone);
 
@@ -132,26 +126,63 @@ public class LocalData {
 
 
         // TODO: cache values only on success
-        RemoteData.upload(c, vanity, phone, country, city);
+        RemoteData.upload(c, vanity, phone, country, city, sc);
     }
 
-    public void initGeo() {
-        gc.init(new GeoChecker.LocationAvailabler() {
+    public void refreshData() {
+        RemoteData.fetchFresh(c, new RemoteData.DataCallback() {
             @Override
-            public void onLocationAvailable(String country, String city) {
-            sd.setCountry(country);
-            sd.setCity(city);
-            sd.setPosition(gc.getCoords(country, city));
-            sd.enableLocationFields();
+            public void onDataReady(@Nullable String vanity, @Nullable String phone, @Nullable String country, @Nullable String city) {
+                putVanity(vanity);
+                sd.setVanity(vanity);
+                sd.prettyUrl.set(RemoteData.getPrettyUrl(c, vanity));
+
+                putPhone(phone);
+                sd.setPhone(phone);
+                sd.enableUserFields();
+
+
+                // TODO: should those even be set here?
+                putCountry(country);
+                sd.setCountry(country);
+
+                putCity(city);
+                sd.setCity(city);
+            }
+
+            @Override
+            public void onError() {
+                retrySnackbar();
+            }
+        });
+    }
+    private void retrySnackbar() {
+        sd.showSnackbar(
+            c.getString(R.string.snackbar_nointernet_text),
+            c.getString(R.string.snackbar_nointernet_action),
+            new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+            refreshData();
             }
         });
     }
 
+
+    public void refreshLocation() {
+        gc.getNewLocation(this);
+    }
     public static void saveLocation(@NonNull Context c, @NonNull String country, @NonNull String city) {
         putCountry(c, country);
         putCity(c, city);
-        RemoteData.upload(c, null, null, country, city);
+        RemoteData.upload(c, null, null, country, city, null);
     }
+    @Override
+    public void onLocationAvailable(@Nullable String country, @Nullable String city) {
+        if (country != null && city != null)
+            sd.setLocation(country, city);
+    }
+
 
 
     // Shared Preferences stuff
@@ -171,7 +202,8 @@ public class LocalData {
             .apply();
     }
 
-    // Magical helpers
+
+
     @Contract(pure = true)
     private static String getUpdatesKey(@NonNull String key) {
         return key + KEY_UPDATED_SUFFIX;

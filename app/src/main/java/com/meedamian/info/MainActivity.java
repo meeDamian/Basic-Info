@@ -1,12 +1,13 @@
 package com.meedamian.info;
 
-
 import android.databinding.DataBindingUtil;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
+import android.view.Menu;
+import android.view.MenuItem;
 
 import com.example.julian.locationservice.GeoChecker;
 import com.google.android.gms.maps.GoogleMap;
@@ -30,10 +31,13 @@ public class MainActivity extends AppCompatActivity {
         ActivityMainBinding amb = DataBindingUtil.setContentView(this, R.layout.activity_main);
         final StateData sd = new StateData(this);
         amb.setState(sd);
+        sd.setRootView(amb.getRoot());
 
+        // Bootstrap model
         ld = new LocalData(this, sd, new GeoChecker(this));
 
-        // Config Toolbar
+
+        // Setup Toolbar
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setPadding(0, getStatusBarHeight(), 0, 0);
@@ -54,18 +58,25 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-
         MainActivityPermissionsDispatcher.initSimWithCheck(this);
         MainActivityPermissionsDispatcher.initGeoWithCheck(this);
 
         Receiver.setAlarm(this);
     }
 
+    @NeedsPermission(SimChecker.PERMISSION)
+    protected void initSim() {
+        new SimChecker(this);
+    }
+
+    @NeedsPermission(GeoChecker.PERMISSION)
+    protected void initGeo() {}
+
 
     // A method to find height of the status bar
     public int getStatusBarHeight() {
         int resourceId = getResources().getIdentifier("status_bar_height", "dimen", "android");
-        return (resourceId > 0)
+        return resourceId > 0
             ? getResources().getDimensionPixelSize(resourceId)
             : 0;
     }
@@ -82,63 +93,20 @@ public class MainActivity extends AppCompatActivity {
         super.onPause();
     }
 
-//    @Override
-//    public boolean onCreateOptionsMenu(Menu menu) {
-//        getMenuInflater().inflate(R.menu.menu_main, menu);
-//        return true;
-//    }
-//
-//    @Override
-//    public boolean onOptionsItemSelected(MenuItem item) {
-//        switch (item.getItemId()) {
-//            case R.id.settings:
-//                Toast.makeText(this, "TODO: Open Settings...", Toast.LENGTH_LONG).show();
-//                break;
-//        }
-//
-//        return super.onOptionsItemSelected(item);
-//    }
-
-//    private void showEditDialog(final String what) {
-//        final EditText input = new EditText(this);
-//        final String oldValue = bd.getString(what);
-//        if (oldValue != null)
-//            input.setText(oldValue);
-//
-//        new AlertDialog.Builder(this)
-//            .setTitle(String.format("Change %s name", what))
-//            .setView(input, px2dp(20), px2dp(5), px2dp(25), 0)
-//            .setPositiveButton(android.R.string.ok, new DialogInterface.OnClickListener() {
-//                @Override
-//                public void onClick(DialogInterface dialog, int which) {
-//                String newValue = input.getText().toString().trim();
-//                if (!newValue.equals(oldValue))
-//                    bd.setReplacer(what, oldValue, newValue);
-//                }
-//            })
-//            .setNegativeButton(android.R.string.cancel, new DialogInterface.OnClickListener() {
-//                @Override
-//                public void onClick(DialogInterface dialog, int which) {
-//                dialog.cancel();
-//                }
-//            })
-//            .create()
-//            .show();
-//    }
-
-//    public int px2dp(int value){
-//        return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, value, getResources().getDisplayMetrics());
-//    }
-
-
-
-    @NeedsPermission(SimChecker.PERMISSION)
-    protected void initSim() {
-        new SimChecker(this);
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
     }
 
-    @NeedsPermission(GeoChecker.PERMISSION)
-    protected void initGeo() {
-        ld.initGeo();
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.location:
+                ld.refreshLocation();
+                break;
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 }

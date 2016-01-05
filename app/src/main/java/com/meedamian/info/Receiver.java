@@ -24,7 +24,7 @@ public class Receiver extends BroadcastReceiver {
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         am.setInexactRepeating(AlarmManager.ELAPSED_REALTIME,
             AlarmManager.INTERVAL_FIFTEEN_MINUTES,
-            AlarmManager.INTERVAL_DAY,
+            AlarmManager.INTERVAL_HALF_DAY,
             PendingIntent.getService(
                 context,
                 0,

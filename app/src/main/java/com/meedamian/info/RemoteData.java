@@ -1,10 +1,11 @@
 package com.meedamian.info;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.util.Log;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
@@ -33,9 +34,14 @@ public class RemoteData {
             .setCallback(new FutureCallback<JsonObject>() {
                 @Override
                 public void onCompleted(Exception e, JsonObject result) {
+                if (result == null) {
+                    dc.onError();
+                    return;
+                }
+
                 JsonElement locRaw = result.get(LocalData.LOCATION);
                 if (locRaw == null) {
-                    dc.onDataReady(null, null, null, null);
+                    dc.onError();
                     return;
                 }
 
@@ -43,14 +49,21 @@ public class RemoteData {
                 dc.onDataReady(
                     getStringFromJson(result, VANITY),
                     getStringFromJson(result, PHONE),
-                    getStringFromJson(loc,    COUNTRY),
-                    getStringFromJson(loc,    CITY)
+                    getStringFromJson(loc, COUNTRY),
+                    getStringFromJson(loc, CITY)
                 );
-                }
-            });
+            }
+        });
+
     }
 
-    public static void upload(@NonNull Context c, @Nullable String vanity, @Nullable String phone, @Nullable String country, @Nullable String city) {
+    public static void upload(@NonNull Context c,
+                              @Nullable String vanity,
+                              @Nullable String phone,
+                              @Nullable String country,
+                              @Nullable String city,
+                              final @Nullable SaveCallback sc) {
+
         JsonObject jo = new JsonObject();
         jo.addProperty(KEY, RemoteData.getPrivateId(c));
 
@@ -73,10 +86,30 @@ public class RemoteData {
             .setCallback(new FutureCallback<String>() {
                 @Override
                 public void onCompleted(Exception e, @Nullable String result) {
-                if (result != null)
-                    Log.d("Basic Data", result);
+                if (sc == null)
+                    return;
+
+                if (result != null) {
+                    // TODO: fix on the server side
+                    result = result.replace("\"", "");
+                    if (result.equals("updated")) {
+                        sc.onSave();
+                        return;
+                    }
                 }
+
+                sc.onError(result);
+                }
+
             });
+    }
+
+
+
+    static public boolean isNetworkAvailable(Context c) {
+        ConnectivityManager cm = (ConnectivityManager) c.getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
+        return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
     }
 
     public static String getPublicUrl(@NonNull Context c) {
@@ -115,11 +148,17 @@ public class RemoteData {
     }
 
     public interface DataCallback {
+        void onError();
         void onDataReady(
             @Nullable String vanity,
             @Nullable String phone,
             @Nullable String country,
             @Nullable String city
         );
+    }
+
+    public interface SaveCallback {
+        void onSave();
+        void onError(String msg);
     }
 }

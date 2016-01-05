@@ -9,6 +9,8 @@ import android.databinding.ObservableBoolean;
 import android.databinding.ObservableField;
 import android.os.Handler;
 import android.support.annotation.Nullable;
+import android.support.annotation.StringRes;
+import android.support.design.widget.Snackbar;
 import android.text.TextWatcher;
 import android.view.View;
 import android.widget.EditText;
@@ -24,9 +26,13 @@ import com.meedamian.info.meh.SimpleTextWatcher;
 public class StateData extends BaseObservable {
 
     private Context c;
+    private View rootView;
 
     public StateData(Context context) {
         this.c = context;
+    }
+    public void setRootView(View v) {
+        this.rootView = v;
     }
 
     public final ObservableBoolean userFieldsEnabled = new ObservableBoolean();
@@ -61,6 +67,10 @@ public class StateData extends BaseObservable {
         setCountryAtomic(newCountry);
         }
     };
+    public void onCountryFocusChange(View v, boolean hasFocus) {
+        if (!hasFocus)
+            setPositionFrom(getCountry(), getCity());
+    }
 
 
     // (Two-way) Data-Binding of CITY
@@ -82,6 +92,17 @@ public class StateData extends BaseObservable {
         setCityAtomic(newCity);
         }
     };
+    public void onCityFocusChange(View v, boolean hasFocus) {
+        if (!hasFocus)
+            setPositionFrom(getCountry(), getCity());
+    }
+
+    public void setLocation(String country, String city) {
+        setCountry(country);
+        setCity(city);
+        setPositionFrom(country, city);
+        enableLocationFields();
+    }
 
 
     // (Two-way) Data-Binding of PHONE
@@ -139,19 +160,35 @@ public class StateData extends BaseObservable {
         Toast.makeText(c, "URL copied to clipboard", Toast.LENGTH_LONG).show();
     }
 
+    public void showSnackbar(@StringRes String text, @Nullable @StringRes String actionName, @Nullable View.OnClickListener actionCallback) {
+        int length = actionName == null && actionCallback == null
+            ? Snackbar.LENGTH_LONG
+            : Snackbar.LENGTH_INDEFINITE;
+
+        Snackbar snackbar = Snackbar.make(rootView, text, length);
+        if (actionName != null && actionCallback != null)
+            snackbar.setAction(actionName, actionCallback);
+
+        snackbar.show();
+    }
 
     private GoogleMap googleMap;
     public void setGoogleMap(GoogleMap googleMap) {
         this.googleMap = googleMap;
-        stupidChecker();
+        tryToAddMarker();
     }
     private LatLng position;
     public void setPosition(LatLng latLng) {
         this.position = latLng;
-        stupidChecker();
+        tryToAddMarker();
     }
-    private void stupidChecker() {
+    public void setPositionFrom(String country, String city) {
+        setPosition(GeoChecker.getCoords(c, country, city));
+    }
+    private void tryToAddMarker() {
         if (googleMap != null && position != null) {
+            googleMap.clear();
+
             googleMap.addMarker(new MarkerOptions()
                 .position(position)
                 .title(GeoChecker.getLocationQuery(getCountry(), getCity())));
@@ -161,6 +198,16 @@ public class StateData extends BaseObservable {
     }
 
     public void save(@Nullable View v) {
-        LocalData.saveUserEdits(c, getVanity(), getPhone(), getCountry(), getCity());
+        LocalData.saveUserEdits(c, getVanity(), getPhone(), getCountry(), getCity(), new RemoteData.SaveCallback() {
+            @Override
+            public void onSave() {
+                showSnackbar(c.getString(R.string.snackbar_saved), null, null);
+            }
+
+            @Override
+            public void onError(String msg) {
+                showSnackbar(c.getString(R.string.snackbar_save_error, msg), null, null);
+            }
+        });
     }
 }

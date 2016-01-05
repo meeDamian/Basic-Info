@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <layout
     xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools">
     <data>
         <variable
@@ -8,7 +9,8 @@
             type="com.meedamian.info.StateData" />
     </data>
 
-    <FrameLayout
+    <android.support.design.widget.CoordinatorLayout
+        android:id="@+id/coordinatorLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:clipChildren="false"
@@ -22,13 +24,22 @@
             android:focusableInTouchMode="true"
             android:weightSum="2">
 
-            <fragment
-                android:id="@+id/map"
-                android:name="com.google.android.gms.maps.MapFragment"
+            <RelativeLayout
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:layout_marginBottom="10dp" />
+                android:layout_weight="1">
+                <fragment
+                    android:id="@+id/map"
+                    android:name="com.google.android.gms.maps.MapFragment"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_marginBottom="10dp" />
+                <View
+                    android:layout_width="match_parent"
+                    android:layout_height="10dp"
+                    android:layout_alignBottom="@id/map"
+                    android:background="@drawable/drop_shadow"/>
+            </RelativeLayout>
 
             <RelativeLayout
                 android:layout_width="match_parent"
@@ -58,6 +69,7 @@
                             android:text="@{state.country}"
                             android:enabled="@{state.locationFieldsEnabled}"
                             android:addTextChangedListener="@{state.onCountryChanged}"
+                            android:onFocusChange="@{state.onCountryFocusChange}"
                             android:inputType="textCapWords" />
 
                     </android.support.design.widget.TextInputLayout>
@@ -76,6 +88,7 @@
                             android:text="@{state.city}"
                             android:enabled="@{state.locationFieldsEnabled}"
                             android:addTextChangedListener="@{state.onCityChanged}"
+                            android:onFocusChange="@{state.onCityFocusChange}"
                             android:inputType="textCapWords" />
 
                     </android.support.design.widget.TextInputLayout>
@@ -151,12 +164,13 @@
             android:id="@+id/save"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
+            app:layout_anchor="@id/coordinatorLayout"
+            app:layout_anchorGravity="bottom|right|end"
             android:layout_marginBottom="16dp"
             android:layout_marginEnd="16dp"
             android:onClick="@{state.save}"
             android:tint="@android:color/white"
             android:src="@drawable/ic_save_black_24dp" />
 
-    </FrameLayout>
+    </android.support.design.widget.CoordinatorLayout>
 </layout>
