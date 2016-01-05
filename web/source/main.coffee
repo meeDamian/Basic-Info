@@ -192,8 +192,8 @@ app.post '/update', (req, res) ->
       record = new Latest()
 
       patch.applyUpdates record,
-        success: -> res.json 201, 'created'
-        error: ->   res.json 500, 'not created'
+        success: -> res.send 201, 'created'
+        error: ->   res.send 500, 'not created'
 
     update: (record) ->
       patch.setPrevious record, (err, something) ->
@@ -202,10 +202,10 @@ app.post '/update', (req, res) ->
           return
 
         patch.applyUpdates record,
-          success: -> res.json 200, 'updated'
-          error: ->   res.json 500, 'not updated'
+          success: -> res.send 200, 'updated'
+          error: ->   res.send 500, 'not updated'
 
     error: ->
-      res.json 500, 'unknown error'
+      res.send 500, 'unknown error'
 
 app.listen()
