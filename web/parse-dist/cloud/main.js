@@ -250,10 +250,10 @@ app.post('/update', function(req, res) {
       record = new Latest();
       return patch.applyUpdates(record, {
         success: function() {
-          return res.json(201, 'created');
+          return res.send(201, 'created');
         },
         error: function() {
-          return res.json(500, 'not created');
+          return res.send(500, 'not created');
         }
       });
     },
@@ -265,16 +265,16 @@ app.post('/update', function(req, res) {
         }
         return patch.applyUpdates(record, {
           success: function() {
-            return res.json(200, 'updated');
+            return res.send(200, 'updated');
           },
           error: function() {
-            return res.json(500, 'not updated');
+            return res.send(500, 'not updated');
           }
         });
       });
     },
     error: function() {
-      return res.json(500, 'unknown error');
+      return res.send(500, 'unknown error');
     }
   });
 });

@@ -89,13 +89,9 @@ public class RemoteData {
                 if (sc == null)
                     return;
 
-                if (result != null) {
-                    // TODO: fix on the server side
-                    result = result.replace("\"", "");
-                    if (result.equals("updated")) {
-                        sc.onSave();
-                        return;
-                    }
+                if (result != null && result.equals("updated")) {
+                    sc.onSave();
+                    return;
                 }
 
                 sc.onError(result);
