@@ -4,10 +4,19 @@ apply plugin: 'android-apt'
 
 apply from: '../incrementAndExport.gradle'
 
+loadSecrets()
 
 play {
     serviceAccountEmail = safeGet('PLAY_EMAIL')
     pk12File            = safeGetFile('PLAY_KEY')
+}
+
+String getVerName() {
+    getVersionName()
+}
+
+Integer getVerCode() {
+    getVersionCode() as Integer
 }
 
 android {
@@ -19,8 +28,8 @@ android {
         minSdkVersion 17
         targetSdkVersion 23
 
-        versionCode getVersionCode() as Integer
-        versionName getVersionName() as String
+        versionCode getVerCode()
+        versionName getVerName()
     }
 
     dataBinding {
