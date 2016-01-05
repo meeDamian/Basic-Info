@@ -94,23 +94,25 @@ Patch = (function() {
           _vals[Patch.LOCATION_UPDATED] = void 0;
           delete _vals[Patch.LOCATION_UPDATED];
       }
-      return cb(null, false);
+      cb(null, false);
+      return;
     }
-    if (what !== Patch.VANITY) {
-      _oldVals[what] = oldVal;
-      return cb(null, true);
-    } else {
+    if (what === Patch.VANITY) {
       return checkVanity(newVal, function(err, hit) {
         if (err) {
-          return cb(err);
+          cb(err);
+          return;
         }
-        if (!hit) {
-          _oldVals[what] = oldVal;
-          return cb(null, true);
-        } else {
-          return cb('vanity taken');
+        if (hit) {
+          cb('vanity taken');
+          return;
         }
+        _oldVals[what] = oldVal;
+        return cb(null, true);
       });
+    } else {
+      _oldVals[what] = oldVal;
+      return cb(null, true);
     }
   };
 
@@ -265,6 +267,24 @@ app.post('/update', function(req, res) {
         }
         return patch.applyUpdates(record, {
           success: function() {
+            var k, out, v;
+            out = ((function() {
+              var _results;
+              _results = [];
+              for (k in something) {
+                v = something[k];
+                if (v) {
+                  if (k === Patch.VANITY || k === Patch.PHONE || k === Patch.COUNTRY || k === Patch.CITY) {
+                    _results.push(k);
+                  } else {
+                    _results.push(void 0);
+                  }
+                }
+              }
+              return _results;
+            })()).filter(function(el) {
+              return el;
+            });
             return res.send(200, 'updated');
           },
           error: function() {

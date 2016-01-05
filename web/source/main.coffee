@@ -71,22 +71,26 @@ class Patch
           _vals[Patch.LOCATION_UPDATED] = undefined
           delete _vals[Patch.LOCATION_UPDATED]
 
-      return cb null, no
+      cb null, no
+      return
 
-    if what isnt Patch.VANITY
+    if what is Patch.VANITY
+      checkVanity newVal, (err, hit) ->
+        if err
+          cb err
+          return
+
+        if hit
+          cb 'vanity taken'
+          return
+
+        _oldVals[what] = oldVal
+        cb null, yes
+
+    else
       _oldVals[what] = oldVal
       cb null, yes
 
-    else
-      checkVanity newVal, (err, hit) ->
-        return cb err if err
-
-        unless hit
-          _oldVals[what] = oldVal
-          cb null, yes
-
-        else
-          cb 'vanity taken'
 
   _saveAtomicUpdates = ->
     for key, val of _oldVals
@@ -100,7 +104,9 @@ class Patch
       update.save()
 
   setPrevious: (record, cb) ->
-    fn = (key, newVal, oldVal) -> (lcb) -> _setOldVal key, newVal, oldVal, lcb
+    fn = (key, newVal, oldVal) ->
+      (lcb) ->
+        _setOldVal key, newVal, oldVal, lcb
 
     list = {}
     for key, val of _vals when key isnt Patch.HASH
@@ -193,7 +199,7 @@ app.post '/update', (req, res) ->
 
       patch.applyUpdates record,
         success: -> res.send 201, 'created'
-        error: ->   res.send 500, 'not created'
+        error:   -> res.send 500, 'not created'
 
     update: (record) ->
       patch.setPrevious record, (err, something) ->
@@ -202,8 +208,18 @@ app.post '/update', (req, res) ->
           return
 
         patch.applyUpdates record,
-          success: -> res.send 200, 'updated'
-          error: ->   res.send 500, 'not updated'
+          success: ->
+            out = (for k, v of something when v
+              k if k in [
+                Patch.VANITY
+                Patch.PHONE
+                Patch.COUNTRY
+                Patch.CITY
+              ]).filter (el) -> el
+
+            res.send 200, 'updated' #+ JSON.stringify out, null, 2
+
+          error:   -> res.send 500, 'not updated'
 
     error: ->
       res.send 500, 'unknown error'
