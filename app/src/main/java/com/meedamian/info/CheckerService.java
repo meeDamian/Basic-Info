@@ -3,6 +3,7 @@ package com.meedamian.info;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import android.support.annotation.NonNull;
 
 import com.example.julian.locationservice.GeoChecker;
 
@@ -21,9 +22,9 @@ public class CheckerService extends Service {
         new GeoChecker(this)
             .getNewLocation(new GeoChecker.LocationAvailabler() {
                 @Override
-                public void onLocationAvailable(String country, String city) {
-                if (country != null && city != null)
-                    LocalData.saveLocation(CheckerService.this, country, city);
+                public void onLocationAvailable(@NonNull BasicData bd) {
+                if (bd.country != null && bd.city != null)
+                    LocalData.saveLocation(CheckerService.this, bd.country, bd.city);
                 }
             });
 

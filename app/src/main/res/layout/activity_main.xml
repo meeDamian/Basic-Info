@@ -69,7 +69,7 @@
                             android:text="@{state.country}"
                             android:enabled="@{state.locationFieldsEnabled}"
                             android:addTextChangedListener="@{state.onCountryChanged}"
-                            android:onFocusChange="@{state.onCountryFocusChange}"
+                            android:onFocusChange="@{state::onCountryFocusChange}"
                             android:inputType="textCapWords" />
 
                     </android.support.design.widget.TextInputLayout>
@@ -88,7 +88,7 @@
                             android:text="@{state.city}"
                             android:enabled="@{state.locationFieldsEnabled}"
                             android:addTextChangedListener="@{state.onCityChanged}"
-                            android:onFocusChange="@{state.onCityFocusChange}"
+                            android:onFocusChange="@{state::onCityFocusChange}"
                             android:inputType="textCapWords" />
 
                     </android.support.design.widget.TextInputLayout>
@@ -114,42 +114,6 @@
                         android:inputType="phone" />
 
                 </android.support.design.widget.TextInputLayout>
-
-                <ImageButton
-                    android:id="@+id/copy"
-                    style="?android:attr/borderlessButtonStyle"
-                    android:layout_width="40dp"
-                    android:layout_height="wrap_content"
-                    android:layout_alignParentEnd="true"
-                    android:layout_below="@id/phoneWrapper"
-                    android:layout_centerVertical="true"
-                    android:layout_marginEnd="16dp"
-                    android:contentDescription="@string/cont_desc_copy_button"
-                    android:onClick="@{state.onCopyVanity}"
-                    android:src="@drawable/ic_content_copy_black_24dp" />
-
-                <android.support.design.widget.TextInputLayout
-                    android:id="@+id/vanityWrapper"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layout_below="@id/phoneWrapper"
-                    android:hint="@{@string/current_url(state.vanityHint)}"
-                    android:layout_marginStart="16dp"
-                    android:layout_toStartOf="@id/copy"
-
-                    tools:hint="@string/current_url">
-
-                    <EditText
-                        android:id="@+id/vanity"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:onFocusChange="@{state.onVanityFocusChange}"
-                        android:text="@{state.vanity}"
-                        android:enabled="@{state.userFieldsEnabled}"
-                        android:addTextChangedListener="@{state.onVanityChanged}"
-                        android:inputType="text" />
-
-                </android.support.design.widget.TextInputLayout>
             </RelativeLayout>
         </LinearLayout>
 
@@ -160,11 +124,16 @@
             android:background="@android:color/transparent"
             android:minHeight="?attr/actionBarSize" />
 
+        <FrameLayout
+            android:id="@+id/attachment_layout"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent" />
+
         <android.support.design.widget.FloatingActionButton
             android:id="@+id/save"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            app:layout_anchor="@id/coordinatorLayout"
+            app:layout_anchor="@id/attachment_layout"
             app:layout_anchorGravity="bottom|right|end"
             android:layout_marginBottom="16dp"
             android:layout_marginEnd="16dp"

@@ -1,160 +1,187 @@
 package com.meedamian.info;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkInfo;
 import android.provider.Settings;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
-import com.koushikdutta.async.future.FutureCallback;
-import com.koushikdutta.ion.Ion;
+import com.google.gson.JsonParser;
 
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-public class RemoteData {
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
+import retrofit2.http.Body;
+import retrofit2.http.GET;
+import retrofit2.http.Headers;
+import retrofit2.http.PATCH;
+import retrofit2.http.Path;
 
-    private static final String API_BASE_URL   = "https://basic-data.parseapp.com/";
-    private static final String API_UPLOAD_URL = API_BASE_URL + "update";
+class RemoteData {
 
-    private static final String KEY     = "key";
-    public  static final String PHONE   = "phone";
-    public  static final String COUNTRY = "country";
-    public  static final String CITY    = "city";
-    public  static final String VANITY  = "vanity";
+    private static final String API_URL = "https://basic-data.herokuapp.com";
+    private static final String BASE_GIST_URL = "https://api.github.com";
+
+    static final String HASH    = "hash";
+    static final String PHONE   = "phone";
+    static final String COUNTRY = "country";
+    static final String CITY    = "city";
 
 
-    public static void fetchFresh(@NonNull Context c, @NonNull final DataCallback dc) {
-        Ion.with(c)
-            .load(getPublicUrl(c))
-            .asJsonObject()
-            .setCallback(new FutureCallback<JsonObject>() {
-                @Override
-                public void onCompleted(Exception e, JsonObject result) {
-                if (result == null) {
-                    dc.onError();
+    static void fetchFresh(@NonNull final DataCallback dc) {
+        new Retrofit.Builder()
+            .baseUrl(BASE_GIST_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(GistApi.class)
+            .get("d881897abb1b251a912d8a31c2b59298")
+            .enqueue(new Callback<JsonObject>() {
+            @Override
+            public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                if (response == null) {
+                    dc.onError(null);
                     return;
                 }
 
-                JsonElement locRaw = result.get(LocalData.LOCATION);
+                JsonElement filesRaw = response.body().get("files");
+                if (filesRaw == null) {
+                    dc.onError(null);
+                    return;
+                }
+
+                JsonObject files = filesRaw.getAsJsonObject();
+                JsonElement locRaw = files.get("location.json");
                 if (locRaw == null) {
-                    dc.onError();
+                    dc.onError(null);
                     return;
                 }
 
                 JsonObject loc = locRaw.getAsJsonObject();
-                dc.onDataReady(
-                    getStringFromJson(result, VANITY),
-                    getStringFromJson(result, PHONE),
-                    getStringFromJson(loc, COUNTRY),
-                    getStringFromJson(loc, CITY)
-                );
+                JsonElement contentString = loc.get("content");
+                if (contentString == null) {
+                    dc.onError(null);
+                    return;
+                }
+
+                JsonElement content = new JsonParser().parse(contentString.getAsString());
+                if (content == null) {
+                    dc.onError(null);
+                    return;
+                }
+
+                JsonObject data = content.getAsJsonObject();
+                BasicData bd = new BasicData(data);
+
+                dc.onDataReady(bd);
+            }
+
+            @Override
+            public void onFailure(Call<JsonObject> call, Throwable t) {
+                dc.onError(t.toString());
             }
         });
-
     }
 
-    public static void upload(@NonNull Context c,
-                              @Nullable String vanity,
-                              @Nullable String phone,
-                              @Nullable String country,
-                              @Nullable String city,
-                              final @Nullable SaveCallback sc) {
+    static void upload(Context c, BasicData bd, final @Nullable SaveCallback sc) {
+        bd.hash = RemoteData.getPrivateId(c);
 
-        JsonObject jo = new JsonObject();
-        jo.addProperty(KEY, RemoteData.getPrivateId(c));
-
-        if (vanity != null)
-            jo.addProperty(VANITY, vanity);
-
-        if (phone != null)
-            jo.addProperty(PHONE, phone);
-
-        if (country != null)
-            jo.addProperty(COUNTRY, country);
-
-        if (city != null)
-            jo.addProperty(CITY, city);
-
-        Ion.with(c)
-            .load(API_UPLOAD_URL)
-            .setJsonObjectBody(jo)
-            .asString()
-            .setCallback(new FutureCallback<String>() {
+        new Retrofit.Builder()
+            .baseUrl(API_URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+            .create(BasicDataApi.class)
+            .patch(bd)
+            .enqueue(new Callback<JsonObject>() {
                 @Override
-                public void onCompleted(Exception e, @Nullable String result) {
-                if (sc == null)
-                    return;
+                public void onResponse(Call<JsonObject> call, Response<JsonObject> response) {
+                    if (sc == null)
+                        return;
 
-                if (result != null && result.equals("updated")) {
-                    sc.onSave();
-                    return;
+                    if (response != null && response.body().isJsonObject()) {
+                        Log.d("basic data", response.body().toString());
+                        // TODO: show status of Twitter, gist and db
+                        sc.onSave();
+                        return;
+                    }
+
+                    String msg = response != null && response.body() != null ?
+                        response.body().toString()
+                        : "Unknown error";
+
+                    sc.onError(msg);
                 }
 
-                sc.onError(result);
-                }
+                @Override
+                public void onFailure(Call<JsonObject> call, Throwable t) {
+                    if (sc == null) {
+                        return;
+                    }
 
+                    sc.onError(t != null ? t.toString() : "Unknown error");
+                }
             });
     }
 
 
 
-    static public boolean isNetworkAvailable(Context c) {
+    static boolean isNetworkAvailable(Context c) {
         ConnectivityManager cm = (ConnectivityManager) c.getSystemService(Context.CONNECTIVITY_SERVICE);
         NetworkInfo activeNetwork = cm.getActiveNetworkInfo();
         return activeNetwork != null && activeNetwork.isConnectedOrConnecting();
     }
 
-    public static String getPublicUrl(@NonNull Context c) {
-        return API_BASE_URL + getPublicId(c);
-    }
-    public static String getPrettyUrl(@NonNull Context c, @Nullable String vanity) {
-        return API_BASE_URL + (vanity != null ? vanity : getPublicId(c));
-    }
-
-
     @Nullable
-    private static String getStringFromJson(@NonNull JsonObject json, @NonNull String name) {
-        JsonElement tmp = json.get(name);
-        return (tmp == null) ? null : tmp.getAsString();
-    }
-
-    public static String getPrivateId(@NonNull Context c) {
-        return Settings.Secure.getString(
-            c.getContentResolver(),
-            Settings.Secure.ANDROID_ID
-        );
-    }
-
-    @Nullable
-    public static String getPublicId(@NonNull Context c) {
-        String id = getPrivateId(c);
-
+    private static String hash(@NonNull String s) {
         try {
             MessageDigest messageDigest = MessageDigest.getInstance("SHA-256");
-            byte[] digest = messageDigest.digest(id.getBytes());
-            return String.format("%064x", new java.math.BigInteger(1, digest)).substring(0, 8);
+            byte[] digest = messageDigest.digest(s.getBytes());
+            return String.format("%064x", new java.math.BigInteger(1, digest));
 
         } catch (NoSuchAlgorithmException e) {
             return null;
         }
-    }
+    };
 
-    public interface DataCallback {
-        void onError();
-        void onDataReady(
-            @Nullable String vanity,
-            @Nullable String phone,
-            @Nullable String country,
-            @Nullable String city
+    @SuppressLint("HardwareIds")
+    private static String getPrivateId(@NonNull Context c) {
+        String androidId = Settings.Secure.getString(
+            c.getContentResolver(),
+            Settings.Secure.ANDROID_ID
         );
+
+        return hash(androidId + "->privateId");
     }
 
-    public interface SaveCallback {
-        void onSave();
+    interface GenericCallback {
         void onError(String msg);
+    }
+
+    interface DataCallback extends GenericCallback {
+        void onDataReady(BasicData data);
+    }
+
+    interface SaveCallback extends GenericCallback {
+        void onSave();
+    }
+
+    interface BasicDataApi {
+        @PATCH("/")
+        Call<JsonObject> patch(@Body BasicData patch);
+    }
+
+    interface GistApi {
+        @Headers("User-Agent: meeDamian/Basic-Data")
+        @GET("/gists/{id}")
+        Call<JsonObject> get(@Path("id") String id);
     }
 }

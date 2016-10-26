@@ -1,20 +1,21 @@
 package com.meedamian.info;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.telephony.TelephonyManager;
 
-public class SimChecker extends PermChecker {
+class SimChecker extends PermChecker {
 
-    public static final String PERMISSION = Manifest.permission.READ_PHONE_STATE;
+    static final String PERMISSION = Manifest.permission.READ_PHONE_STATE;
 
     private static final int PHONE_CHANGED_NOTIFICATION_ID = 666;
 
     private Context c;
 
-    public SimChecker(Context c) {
+    SimChecker(Context c) {
         this.c = c;
 
         if(!isPermitted(c))
@@ -46,6 +47,7 @@ public class SimChecker extends PermChecker {
         LocalData.cacheString(c, LocalData.SUBSCRIBER_ID, newSubscriberId);
     }
 
+    @SuppressLint("HardwareIds")
     private String getCurrentSubscriberId(@NonNull Context c) {
         TelephonyManager tm = (TelephonyManager) c.getSystemService(Context.TELEPHONY_SERVICE);
         return tm.getSubscriberId();

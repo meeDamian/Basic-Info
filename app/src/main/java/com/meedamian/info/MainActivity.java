@@ -70,7 +70,9 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @NeedsPermission(GeoChecker.PERMISSION)
-    protected void initGeo() {}
+    protected void initGeo() {
+        new GeoChecker(this);
+    }
 
 
     // A method to find height of the status bar

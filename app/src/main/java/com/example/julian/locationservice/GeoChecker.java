@@ -13,6 +13,7 @@ import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.model.LatLng;
+import com.meedamian.info.BasicData;
 import com.meedamian.info.PermChecker;
 import com.meedamian.info.R;
 
@@ -37,7 +38,7 @@ public class GeoChecker extends PermChecker implements
         buildGoogleApiClient(c).connect();
     }
 
-    protected synchronized GoogleApiClient buildGoogleApiClient(Context c) {
+    private synchronized GoogleApiClient buildGoogleApiClient(Context c) {
         if (mGoogleApiClient != null)
             return mGoogleApiClient;
 
@@ -64,17 +65,12 @@ public class GeoChecker extends PermChecker implements
             return;
         }
 
-        Address a = getAddress(c, LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient));
 
-        String country = null;
-        String city = null;
-        if (a != null) {
-            country = a.getCountryName();
-            city = a.getLocality();
+        if (localCallback != null) {
+            Address a = getAddress(c, LocationServices.FusedLocationApi.getLastLocation(mGoogleApiClient));
+
+            localCallback.onLocationAvailable(new BasicData(a.getCountryName(), a.getLocality(), null));
         }
-
-        if (localCallback != null)
-            localCallback.onLocationAvailable(country, city);
     }
 
     @Contract(value = "!null, null -> null", pure = true)
@@ -90,7 +86,7 @@ public class GeoChecker extends PermChecker implements
 
 
     @Contract("_, null -> null")
-    public static Address getAddress(@NonNull Context c, @Nullable Location location) {
+    private static Address getAddress(@NonNull Context c, @Nullable Location location) {
         if (location == null)
             return null;
 
@@ -149,6 +145,6 @@ public class GeoChecker extends PermChecker implements
 
 
     public interface LocationAvailabler {
-        void onLocationAvailable(@Nullable String country, @Nullable String city);
+        void onLocationAvailable(@NonNull BasicData bd);
     }
 }

@@ -15,8 +15,8 @@ import permissions.dispatcher.PermissionUtils;
 
 public abstract class PermChecker {
 
-    public static final int MISSING_LOCATION_PERM   = 111;
-    public static final int MISSING_PHONE_PERM      = 222;
+    protected static final int MISSING_LOCATION_PERM = 111;
+    static final           int MISSING_PHONE_PERM    = 222;
 
     protected boolean isPermitted(@NonNull Context c) {
         if (!PermissionUtils.hasSelfPermissions(c, getPermission())) {
@@ -54,7 +54,7 @@ public abstract class PermChecker {
     }
 
 
-    protected NotificationManager getNotificationManager(@NonNull Context c) {
+    NotificationManager getNotificationManager(@NonNull Context c) {
         return (NotificationManager) c.getSystemService(Context.NOTIFICATION_SERVICE);
     }
 
@@ -68,7 +68,7 @@ public abstract class PermChecker {
             PendingIntent.FLAG_UPDATE_CURRENT
         );
     }
-    protected PendingIntent getAppPendingIntent(@NonNull Context c) {
+    PendingIntent getAppPendingIntent(@NonNull Context c) {
         return PendingIntent.getActivity(c, 0,
             new Intent(
                 c,
