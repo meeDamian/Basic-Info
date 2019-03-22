@@ -6,8 +6,6 @@ import android.location.Address;
 import android.location.Geocoder;
 import android.location.Location;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 
 import com.google.android.gms.common.ConnectionResult;
 import com.google.android.gms.common.api.GoogleApiClient;
@@ -23,14 +21,17 @@ import java.io.IOException;
 import java.util.List;
 import java.util.Locale;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 public class GeoChecker extends PermChecker implements
-    GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
+        GoogleApiClient.ConnectionCallbacks, GoogleApiClient.OnConnectionFailedListener {
 
     public static final String PERMISSION = Manifest.permission.ACCESS_COARSE_LOCATION;
 
-    private GoogleApiClient    mGoogleApiClient;
+    private GoogleApiClient mGoogleApiClient;
     private LocationAvailabler la;
-    private Context            c;
+    private Context c;
 
 
     public GeoChecker(Context context) {
@@ -43,10 +44,10 @@ public class GeoChecker extends PermChecker implements
             return mGoogleApiClient;
 
         return mGoogleApiClient = new GoogleApiClient.Builder(c)
-            .addConnectionCallbacks(this)
-            .addOnConnectionFailedListener(this)
-            .addApi(LocationServices.API)
-            .build();
+                .addConnectionCallbacks(this)
+                .addOnConnectionFailedListener(this)
+                .addApi(LocationServices.API)
+                .build();
     }
 
     @Override
@@ -54,8 +55,14 @@ public class GeoChecker extends PermChecker implements
         if (la != null)
             getNewLocation(la);
     }
-    @Override public void onConnectionSuspended(int i) {}
-    @Override public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {}
+
+    @Override
+    public void onConnectionSuspended(int i) {
+    }
+
+    @Override
+    public void onConnectionFailed(@NonNull ConnectionResult connectionResult) {
+    }
 
     public void getNewLocation(@Nullable LocationAvailabler localCallback) {
         isPermitted(c);
@@ -92,14 +99,14 @@ public class GeoChecker extends PermChecker implements
 
         try {
             List<Address> addresses = new Geocoder(c, Locale.getDefault()).getFromLocation(
-                location.getLatitude(),
-                location.getLongitude(),
-                1
+                    location.getLatitude(),
+                    location.getLongitude(),
+                    1
             );
 
             return addresses.get(0);
 
-        } catch(IOException e) {
+        } catch (IOException e) {
             return null;
         }
     }
@@ -113,11 +120,11 @@ public class GeoChecker extends PermChecker implements
         try {
             Address address = new Geocoder(c).getFromLocationName(locationQuery, 1).get(0);
             return new LatLng(
-                address.getLatitude(),
-                address.getLongitude()
+                    address.getLatitude(),
+                    address.getLongitude()
             );
 
-        } catch(IOException e) {
+        } catch (IOException e) {
             return null;
         }
     }

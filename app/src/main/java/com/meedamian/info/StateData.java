@@ -1,11 +1,6 @@
 package com.meedamian.info;
 
 import android.content.Context;
-import android.databinding.BaseObservable;
-import android.databinding.Bindable;
-import android.databinding.ObservableBoolean;
-import android.support.annotation.Nullable;
-import android.support.design.widget.Snackbar;
 import android.text.TextWatcher;
 import android.view.View;
 
@@ -14,7 +9,13 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.material.snackbar.Snackbar;
 import com.meedamian.info.meh.SimpleTextWatcher;
+
+import androidx.annotation.Nullable;
+import androidx.databinding.BaseObservable;
+import androidx.databinding.Bindable;
+import androidx.databinding.ObservableBoolean;
 
 public class StateData extends BaseObservable {
 

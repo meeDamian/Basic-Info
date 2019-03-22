@@ -1,10 +1,10 @@
 package com.meedamian.info;
 
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
-
 import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
+
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
 
 import static com.meedamian.info.RemoteData.CITY;
 import static com.meedamian.info.RemoteData.COUNTRY;
@@ -34,11 +34,12 @@ public class BasicData {
         return (el == null) ? null : el.getAsString();
     }
 
+    @NonNull
     @Override
     public String toString() {
         return (this.hash != null ? this.hash : "NO HASH") + " "
-            + (this.country != null ? this.country : "NO COUNTRY") + " "
-            + (this.city != null ? this.city : "NO CITY") + " "
-            + (this.phone != null ? this.phone : "NO PHONE");
+                + (this.country != null ? this.country : "NO COUNTRY") + " "
+                + (this.city != null ? this.city : "NO CITY") + " "
+                + (this.phone != null ? this.phone : "NO PHONE");
     }
 }

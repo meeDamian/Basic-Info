@@ -5,14 +5,18 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.support.annotation.NonNull;
+
+import java.util.Objects;
+
+import androidx.annotation.NonNull;
 
 public class Receiver extends BroadcastReceiver {
-    public Receiver() {}
+    public Receiver() {
+    }
 
     @Override
     public void onReceive(@NonNull Context context, @NonNull Intent intent) {
-        switch (intent.getAction()) {
+        switch (Objects.requireNonNull(intent.getAction())) {
             case Intent.ACTION_BOOT_COMPLETED:
             case Intent.ACTION_MY_PACKAGE_REPLACED:
                 setAlarm(context);
@@ -23,13 +27,13 @@ public class Receiver extends BroadcastReceiver {
     public static void setAlarm(@NonNull Context context) {
         AlarmManager am = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
         am.setInexactRepeating(AlarmManager.ELAPSED_REALTIME,
-            AlarmManager.INTERVAL_FIFTEEN_MINUTES,
-            AlarmManager.INTERVAL_HALF_DAY,
-            PendingIntent.getService(
-                context,
-                0,
-                new Intent(context, CheckerService.class),
-                0
-            ));
+                AlarmManager.INTERVAL_FIFTEEN_MINUTES,
+                AlarmManager.INTERVAL_HALF_DAY,
+                PendingIntent.getService(
+                        context,
+                        0,
+                        new Intent(context, CheckerService.class),
+                        0
+                ));
     }
 }

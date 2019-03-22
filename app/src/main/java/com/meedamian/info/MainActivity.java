@@ -1,11 +1,6 @@
 package com.meedamian.info;
 
-import android.databinding.DataBindingUtil;
 import android.os.Bundle;
-import android.support.annotation.NonNull;
-import android.support.v7.app.ActionBar;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 
@@ -15,6 +10,11 @@ import com.google.android.gms.maps.MapFragment;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.meedamian.info.databinding.ActivityMainBinding;
 
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import androidx.databinding.DataBindingUtil;
 import permissions.dispatcher.NeedsPermission;
 import permissions.dispatcher.RuntimePermissions;
 
@@ -38,7 +38,7 @@ public class MainActivity extends AppCompatActivity {
 
 
         // Setup Toolbar
-        Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
+        Toolbar toolbar = findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
         toolbar.setPadding(0, getStatusBarHeight(), 0, 0);
         ActionBar ab = getSupportActionBar();
@@ -58,8 +58,8 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        MainActivityPermissionsDispatcher.initSimWithCheck(this);
-        MainActivityPermissionsDispatcher.initGeoWithCheck(this);
+        MainActivityPermissionsDispatcher.initGeoWithPermissionCheck(this);
+        MainActivityPermissionsDispatcher.initGeoWithPermissionCheck(this);
 
         Receiver.setAlarm(this);
     }

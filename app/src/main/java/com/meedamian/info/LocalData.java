@@ -4,19 +4,20 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.preference.PreferenceManager;
-import android.support.annotation.NonNull;
-import android.support.annotation.Nullable;
 import android.view.View;
 
 import com.example.julian.locationservice.GeoChecker;
 
 import org.jetbrains.annotations.Contract;
 
+import androidx.annotation.NonNull;
+import androidx.annotation.Nullable;
+
 class LocalData implements GeoChecker.LocationAvailabler {
 
     static final String SUBSCRIBER_ID = "subscriber";
 
-    private static final String KEY_UPDATED_SUFFIX  = "_updated";
+    private static final String KEY_UPDATED_SUFFIX = "_updated";
 
     private StateData sd;
     private GeoChecker gc;
@@ -35,47 +36,53 @@ class LocalData implements GeoChecker.LocationAvailabler {
         new Handler().postDelayed(new Runnable() {
             @Override
             public void run() {
-            sd.enableLocationFields();
-            sd.enableUserFields();
+                sd.enableLocationFields();
+                sd.enableUserFields();
             }
         }, 4000);
 
-        if(RemoteData.isNetworkAvailable(c))
+        if (RemoteData.isNetworkAvailable(c))
             refreshData();
         else
             retrySnackbar();
     }
 
-    public String getPhone() {
+    private String getPhone() {
         return getString(c, RemoteData.PHONE);
     }
+
     private void putPhone(@Nullable String phone) {
         putPhone(c, phone);
     }
+
     private static void putPhone(@NonNull Context c, @Nullable String phone) {
         if (phone != null)
             cacheString(c, RemoteData.PHONE, phone);
     }
 
-    public String getCountry() {
+    private String getCountry() {
         return getString(c, RemoteData.COUNTRY);
     }
+
     private void putCountry(@Nullable String country) {
         putCountry(c, country);
     }
+
     private static void putCountry(@NonNull Context c, @Nullable String country) {
         if (country != null)
             cacheString(c, RemoteData.COUNTRY, country);
     }
 
-    public String getCity() {
+    private String getCity() {
         return getString(c, RemoteData.CITY);
     }
+
     private void putCity(String city) {
         putCity(c, city);
     }
+
     private static void putCity(@NonNull Context c, @Nullable String city) {
-        if(city != null)
+        if (city != null)
             cacheString(c, RemoteData.CITY, city);
     }
 
@@ -114,24 +121,27 @@ class LocalData implements GeoChecker.LocationAvailabler {
             }
         });
     }
+
     private void retrySnackbar() {
         sd.showSnackbar(
-            c.getString(R.string.snackbar_nointernet_text),
-            c.getString(R.string.snackbar_nointernet_action), new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                refreshData();
-                }
-            });
+                c.getString(R.string.snackbar_nointernet_text),
+                c.getString(R.string.snackbar_nointernet_action), new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        refreshData();
+                    }
+                });
     }
 
 
     void refreshLocation() {
         gc.getNewLocation(this);
     }
+
     static void saveLocation(@NonNull Context c, @NonNull String country, @NonNull String city) {
         RemoteData.upload(c, new BasicData(country, city, null), null);
     }
+
     @Override
     public void onLocationAvailable(@NonNull BasicData bd) {
         if (bd.country != null && bd.city != null)
@@ -142,17 +152,20 @@ class LocalData implements GeoChecker.LocationAvailabler {
     private static SharedPreferences getSp(Context c) {
         return PreferenceManager.getDefaultSharedPreferences(c);
     }
+
     private static SharedPreferences.Editor getSpEditor(Context c) {
         return getSp(c).edit();
     }
+
     static String getString(Context c, @NonNull String key) {
         return getSp(c).getString(key, null);
     }
+
     static void cacheString(Context c, @NonNull String key, @NonNull String val) {
         getSpEditor(c)
-            .putString(key, val)
-            .putLong(getUpdatesKey(key), System.currentTimeMillis())
-            .apply();
+                .putString(key, val)
+                .putLong(getUpdatesKey(key), System.currentTimeMillis())
+                .apply();
     }
 
     @Contract(pure = true)

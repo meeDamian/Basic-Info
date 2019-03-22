@@ -9,7 +9,7 @@
             type="com.meedamian.info.StateData" />
     </data>
 
-    <android.support.design.widget.CoordinatorLayout
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:id="@+id/coordinatorLayout"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
@@ -55,7 +55,7 @@
                               android:baselineAligned="false"
                               android:weightSum="2">
 
-                    <android.support.design.widget.TextInputLayout
+                    <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/countryWrapper"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -72,9 +72,9 @@
                             android:onFocusChange="@{state::onCountryFocusChange}"
                             android:inputType="textCapWords" />
 
-                    </android.support.design.widget.TextInputLayout>
+                    </com.google.android.material.textfield.TextInputLayout>
 
-                    <android.support.design.widget.TextInputLayout
+                    <com.google.android.material.textfield.TextInputLayout
                         android:id="@+id/cityWrapper"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
@@ -91,11 +91,11 @@
                             android:onFocusChange="@{state::onCityFocusChange}"
                             android:inputType="textCapWords" />
 
-                    </android.support.design.widget.TextInputLayout>
+                    </com.google.android.material.textfield.TextInputLayout>
 
                 </LinearLayout>
 
-                <android.support.design.widget.TextInputLayout
+                <com.google.android.material.textfield.TextInputLayout
                     android:id="@+id/phoneWrapper"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
@@ -113,11 +113,11 @@
                         android:addTextChangedListener="@{state.onPhoneChanged}"
                         android:inputType="phone" />
 
-                </android.support.design.widget.TextInputLayout>
+                </com.google.android.material.textfield.TextInputLayout>
             </RelativeLayout>
         </LinearLayout>
 
-        <android.support.v7.widget.Toolbar
+        <androidx.appcompat.widget.Toolbar
             android:id="@+id/toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
@@ -129,7 +129,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent" />
 
-        <android.support.design.widget.FloatingActionButton
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/save"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
@@ -141,5 +141,5 @@
             android:tint="@android:color/white"
             android:src="@drawable/ic_save_black_24dp" />
 
-    </android.support.design.widget.CoordinatorLayout>
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
 </layout>
